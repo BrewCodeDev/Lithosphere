@@ -5,6 +5,7 @@
 - **Repository:** `KaJLabs/Lithosphere`
 - **Default branch inspected:** `origin/main` at `5db05ad0e5fc396b0a1c532dff84d5d69f06adee`
 - **Working branch:** `feat/mx01-multx-production-ready` (dirty worktree; preserve unrelated changes)
+- **Active review branch:** `feat/mx02-faucet-fail-closed`
 - **Network in scope:** Makalu testnet, EVM chain ID `700777`, Cosmos chain ID `lithosphere_700777-2`
 
 This is the source of truth for the seven Makalu extra-work streams. Update it whenever code is merged, a release is
@@ -46,7 +47,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | ID | Workstream | Current gate | Status | Immediate next action |
 | --- | --- | --- | --- | --- |
 | MX-06 | Validator cleanup and safety | Chain monitor active; encrypted backup blocked | EXTERNAL BLOCKER | Assign custodians and add the public `BACKUP_RECIPIENT`, then run backup/restore verification. |
-| MX-02 | LEP100 faucet assets | Safeguards local; all ten live assets underfunded | IN PROGRESS, LOCAL ONLY | Test and review fail-closed handling, then obtain replenishment and deploy. |
+| MX-02 | LEP100 faucet assets | PR #80 checks pass; review required; all ten live assets underfunded | EXTERNAL BLOCKER | Approve/merge/deploy PR #80, then replenish reserves and run live claims. |
 | MX-03 | Thanos Wallet | Merged and deployed; acceptance open | IN PROGRESS | Complete wallet-team browser and signed-transaction acceptance. |
 | MX-04 | DNNS | Merged and deployed; live-name acceptance open | EXTERNAL BLOCKER | Obtain two stable test names and DNNS interface/cache confirmation. |
 | MX-05 | Quantt | Adapter deployed but deliberately unconfigured | EXTERNAL BLOCKER | Obtain API contract/credential and repair or replace the development TLS endpoint. |
@@ -59,7 +60,7 @@ Only one repository stream is active at a time. An external blocker is recorded 
 to the next executable stream without pretending the blocked stream is complete.
 
 1. [ ] **MX-06 Validator cleanup and safety** — waiting on responder/custodian governance and public backup recipient.
-2. [ ] **MX-02 LEP100 faucet assets** — active repository slice.
+2. [ ] **MX-02 LEP100 faucet assets** — PR #80 checks pass; review, deployment, funding, live claims, and alerts remain.
 3. [ ] **MX-03 Thanos Wallet** — next after MX-02 repository work is verified.
 4. [ ] **MX-04 DNNS** — waiting on stable test records and team confirmation.
 5. [ ] **MX-05 Quantt** — waiting on API/TLS/product contract.
@@ -171,6 +172,7 @@ Evidence:
 - `Makalu/faucet/src/routes/health.ts`
 - `docs/FAUCET_SETUP_INSTRUCTIONS.md`
 - Live probe: `https://makalu.litho.ai/api/faucet/info`
+- Review PR: `https://github.com/KaJLabs/Lithosphere/pull/80` (checks pass; independent review required)
 
 ## MX-03 — Thanos Wallet integration
 
@@ -469,6 +471,7 @@ Evidence:
 | 2026-08-14 | Live Makalu config | PASS | HTTP 200; faucet and bridge enabled, swap disabled. |
 | 2026-08-14 | Live faucet inventory | BLOCKED | Ten LEP100 assets present; five at zero and five at five, below minimum claim ten. |
 | 2026-08-14 | Faucet safeguards | PASS, LOCAL ONLY | Seven tests and strict TypeScript build pass; merge/deploy/funding remain. |
+| 2026-08-14 | Faucet PR #80 | REVIEW REQUIRED | Thirteen GitHub checks and two GitBook statuses pass; branch is mergeable. |
 | 2026-08-14 | Thanos deployment | PARTIAL | `/signin` and `/api/auth/nonce` respond; wallet-team acceptance remains. |
 | 2026-08-14 | DNNS registry | PASS | Kamet chain ID 900523; configured registry address contains contract bytecode. |
 | 2026-08-14 | Quantt | BLOCKED | Live adapter reports `configured: false`; development hostname fails TLS validation. |
@@ -486,6 +489,8 @@ Evidence:
   below-minimum, malformed, balance-read failure, fractional precision, funded amount filtering, and successful
   route behavior.
 - Faucet strict TypeScript build passed.
+- Opened isolated PR #80 from current `origin/main`; all reported checks/statuses pass and independent review is the
+  remaining merge gate.
 - MX-02 remains open at the merged/deployed/accepted gates: review, deployment, treasury replenishment, ten live
   claims, alert routing, and replenishment ownership are not complete.
 - Updated by: `bachal-mb`.
