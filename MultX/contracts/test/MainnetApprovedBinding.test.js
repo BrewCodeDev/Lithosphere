@@ -5,7 +5,7 @@ const { verifyApprovedDeploymentBindings } = require('../scripts/mainnet/verify-
 
 const addr = (value) => `0x${value.toString(16).padStart(40, '0')}`;
 const digest = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
-const validators = Array.from({ length: 7 }, (_, index) => addr(index + 1));
+const validators = Array.from({ length: 5 }, (_, index) => addr(index + 1));
 const evidence = {
   auditedTag: 'multx-audited-v1.0.0', commit: 'a'.repeat(40),
   contracts: {
@@ -34,7 +34,7 @@ function fixture() {
       approvalRecordUrl: 'https://evidence.example/window',
     },
     bridgeSignerSet: {
-      threshold: 5, addresses: validators,
+      threshold: 3, addresses: validators,
       acceptanceRecords: validators.map((_, index) => `https://evidence.example/signer-${index}`),
     },
     chains: chainIds.map((chainId, index) => ({
@@ -73,7 +73,7 @@ function fixture() {
         deploymentBlock: 100 + index,
         runtimeSha256: approved.chainId === 9005 ? plan.release.sourceBridgeRuntimeSha256 : plan.release.destinationBridgeRuntimeSha256,
         owner: approved.timelock, governanceSafe: approved.safe, pauseGuardian: approved.pauseGuardian, paused: true,
-        signaturesRequired: 5, validators,
+        signaturesRequired: 3, validators,
         explorerUrl: `https://explorer.example/${approved.chainId}`, sourceVerified: true,
       },
       assets: [{

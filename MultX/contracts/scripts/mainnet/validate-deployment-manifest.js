@@ -118,10 +118,10 @@ function validateDeploymentManifest(input) {
       throw new Error(`${prefix}.bridge owner, governance Safe and pause guardian must be distinct`);
     }
     if (bridge.paused !== true) throw new Error(`${prefix}.bridge.paused must be true`);
-    if (bridge.signaturesRequired !== 5) throw new Error(`${prefix}.bridge.signaturesRequired must be 5`);
-    if (!Array.isArray(bridge.validators) || bridge.validators.length !== 7) throw new Error(`${prefix}.bridge.validators must contain seven addresses`);
+    if (bridge.signaturesRequired !== 3) throw new Error(`${prefix}.bridge.signaturesRequired must be 3`);
+    if (!Array.isArray(bridge.validators) || bridge.validators.length !== 5) throw new Error(`${prefix}.bridge.validators must contain five addresses`);
     const validators = bridge.validators.map((item, signerIndex) => address(item, `${prefix}.bridge.validators[${signerIndex}]`).toLowerCase());
-    if (new Set(validators).size !== 7) throw new Error(`${prefix}.bridge.validators must be unique`);
+    if (new Set(validators).size !== 5) throw new Error(`${prefix}.bridge.validators must be unique`);
     if (expectedValidators && JSON.stringify(validators) !== JSON.stringify(expectedValidators)) throw new Error(`${prefix}.bridge.validators does not match the approved cross-chain set`);
     expectedValidators ||= validators;
     url(bridge.explorerUrl, `${prefix}.bridge.explorerUrl`);

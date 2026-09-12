@@ -111,16 +111,16 @@ function validateDeploymentPlan(input) {
   exactHttpsUrl(window.approvalRecordUrl, 'changeWindow.approvalRecordUrl');
 
   const signerSet = requiredObject(input.bridgeSignerSet, 'bridgeSignerSet');
-  if (signerSet.threshold !== 5) throw new Error('bridgeSignerSet.threshold must be 5');
-  if (!Array.isArray(signerSet.addresses) || signerSet.addresses.length !== 7) {
-    throw new Error('bridgeSignerSet.addresses must contain exactly seven addresses');
+  if (signerSet.threshold !== 3) throw new Error('bridgeSignerSet.threshold must be 3');
+  if (!Array.isArray(signerSet.addresses) || signerSet.addresses.length !== 5) {
+    throw new Error('bridgeSignerSet.addresses must contain exactly five addresses');
   }
   const signerAddresses = signerSet.addresses.map((item, index) => address(item, `bridgeSignerSet.addresses[${index}]`));
-  if (new Set(signerAddresses.map((item) => item.toLowerCase())).size !== 7) {
+  if (new Set(signerAddresses.map((item) => item.toLowerCase())).size !== 5) {
     throw new Error('bridgeSignerSet.addresses must be unique');
   }
-  if (!Array.isArray(signerSet.acceptanceRecords) || signerSet.acceptanceRecords.length !== 7) {
-    throw new Error('bridgeSignerSet.acceptanceRecords must contain exactly seven URLs');
+  if (!Array.isArray(signerSet.acceptanceRecords) || signerSet.acceptanceRecords.length !== 5) {
+    throw new Error('bridgeSignerSet.acceptanceRecords must contain exactly five URLs');
   }
   signerSet.acceptanceRecords.forEach((item, index) => exactHttpsUrl(item, `bridgeSignerSet.acceptanceRecords[${index}]`));
 

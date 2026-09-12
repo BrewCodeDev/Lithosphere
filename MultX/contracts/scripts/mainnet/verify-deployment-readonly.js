@@ -196,6 +196,10 @@ async function verifyCreationProvenance(provider, address, txHash, deploymentBlo
   return deploymentBlock;
 }
 
+function verifyRequiredThreshold(threshold, chainName) {
+  if (threshold.toString() !== '3') throw new Error(`${chainName} threshold is not 3`);
+}
+
 async function verifyExactValidatorSet(bridge, expected, chainName, blockTag) {
   const [countValue, completeSet] = await Promise.all([
     bridge.getValidatorCount({ blockTag }),
@@ -329,7 +333,7 @@ async function verifyDeploymentReadonly(manifest, approvedInputs, providerFactor
     if (owner.toLowerCase() !== chain.bridge.owner.toLowerCase()) throw new Error(`${chain.name} bridge owner mismatch`);
     if (guardian.toLowerCase() !== chain.bridge.pauseGuardian.toLowerCase()) throw new Error(`${chain.name} pause guardian mismatch`);
     if (paused !== true) throw new Error(`${chain.name} bridge is not paused`);
-    if (threshold.toNumber() !== 5) throw new Error(`${chain.name} threshold is not 5`);
+    verifyRequiredThreshold(threshold, chain.name);
     await verifyGovernance(provider, chain, approvedChain, evidence, verificationBlock,
       { verifyCreationProvenance, sha256Code, getLogsByTopics });
     await verifyTokenUniverse(provider, bridge, chain, verificationBlock);
@@ -431,6 +435,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  verifyRequiredThreshold,
   getBridgeActivityLogs,
   getLogsByTopics,
   sha256Code,

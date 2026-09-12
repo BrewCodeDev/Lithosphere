@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, '..');
 const group = process.argv[2];
 const cases = {
   contracts: [
+    ['candidate live threshold', 'scripts/mainnet/verify-deployment-readonly.js', "threshold.toString() !== '3'", 'false'],
     ['plan digest', 'scripts/mainnet/verify-deployment-readonly.js', 'sha256Bytes(planBytes) !== manifest.release.deploymentPlanSha256.toLowerCase()', 'false'],
     ['evidence plan digest', 'scripts/mainnet/verify-deployment-readonly.js', 'sha256Bytes(evidenceBytes) !== plan.release.bytecodeEvidenceSha256.toLowerCase()', 'false'],
     ['evidence manifest digest', 'scripts/mainnet/verify-deployment-readonly.js', 'sha256Bytes(evidenceBytes) !== manifest.release.bytecodeEvidenceSha256.toLowerCase()', 'false'],
@@ -22,9 +23,9 @@ const cases = {
   ],
   api: [
     ['live RPC chain', 'src/services/validatorPolicy.js', 'Number(network.chainId) !== Number(chain.chainId)', 'false'],
-    ['live threshold', 'src/services/validatorPolicy.js', 'threshold !== 5', 'false'],
-    ['live count', 'src/services/validatorPolicy.js', 'count !== 7', 'false'],
-    ['live array length', 'src/services/validatorPolicy.js', 'live.length !== 7', 'false'],
+    ['live threshold', 'src/services/validatorPolicy.js', 'threshold !== 3', 'false'],
+    ['live count', 'src/services/validatorPolicy.js', 'count !== 5', 'false'],
+    ['live array length', 'src/services/validatorPolicy.js', 'live.length !== 5', 'false'],
     ['live addresses', 'src/services/validatorPolicy.js', 'live.some((item, index) => item.toLowerCase() !== expectedAddresses[index])', 'false'],
   ],
   signer: [
