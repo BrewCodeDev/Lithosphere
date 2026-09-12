@@ -7,6 +7,16 @@ const root = path.resolve(__dirname, '..');
 const group = process.argv[2];
 const cases = {
   contracts: [
+    ['fallback chain', 'scripts/mainnet/governance-policy.js', '!Object.hasOwn(FALLBACK_CHAINS, chainId)', 'false'],
+    ['fallback address', 'scripts/mainnet/governance-policy.js', "typeof safe.fallbackHandler !== 'string' || safe.fallbackHandler.toLowerCase() !== FALLBACK_CHAINS[chainId]", 'false'],
+    ['fallback hash pin', 'scripts/mainnet/governance-policy.js', 'safe.fallbackHandlerRuntimeSha256 !== FALLBACK_SHA256', 'false'],
+    ['zero handler hash', 'scripts/mainnet/governance-policy.js', 'safe.fallbackHandlerRuntimeSha256 !== undefined', 'false'],
+    ['fallback plan call', 'scripts/mainnet/governance-policy.js', 'validateFallbackPolicy(chain.chainId, s);', '/* omitted */'],
+    ['fallback live policy call', 'scripts/mainnet/verify-governance.js', 'validateFallbackPolicy(chainId, policy);', '/* omitted */'],
+    ['fallback live branch', 'scripts/mainnet/verify-governance.js', 'policy.fallbackHandler !== ethers.constants.AddressZero', 'false'],
+    ['fallback live empty code', 'scripts/mainnet/verify-governance.js', "handlerCode === '0x'", 'false'],
+    ['fallback live hash', 'scripts/mainnet/verify-governance.js', 'hashCode(handlerCode) !== policy.fallbackHandlerRuntimeSha256', 'false'],
+    ['Safe verification call site', 'scripts/mainnet/verify-governance.js', 'await verifySafe(provider, approved.safe, approved.governance.safe, blockTag, helpers.sha256Code, contractFactory, approved.chainId);', '/* omitted */'],
     ['candidate threshold call site', 'scripts/mainnet/verify-deployment-readonly.js', 'verifyRequiredThreshold(threshold, chain.name);', '/* omitted for mutation */'],
     ['candidate live threshold', 'scripts/mainnet/verify-deployment-readonly.js', "threshold.toString() !== '3'", 'false'],
     ['plan digest', 'scripts/mainnet/verify-deployment-readonly.js', 'sha256Bytes(planBytes) !== manifest.release.deploymentPlanSha256.toLowerCase()', 'false'],
@@ -39,7 +49,7 @@ if (!cases[group]) throw new Error('Usage: node scripts/check-closure-mutations.
 if (group === 'signer' && process.platform === 'win32') throw new Error('Signer mutations require Linux; skipped permission tests cannot prove closure');
 const cwd = path.join(root, group);
 const args = group === 'contracts' ? ['node_modules/mocha/bin/mocha.js', 'test/MainnetApprovedBinding.test.js',
-  'test/MainnetReadonlyVerifier.test.js', 'test/ClosureNegativeCoverage.test.js', 'test/BytecodeSourceIdentity.test.js']
+  'test/MainnetReadonlyVerifier.test.js', 'test/ClosureNegativeCoverage.test.js', 'test/BytecodeSourceIdentity.test.js', 'test/FallbackPolicy.test.js']
   : ['--test', group === 'api' ? 'test/validatorPolicy.test.js' : 'test/stateIdentity.test.js'];
 function test() {
   const result = spawnSync(process.execPath, args, { cwd, encoding: 'utf8', timeout: 60000 });
