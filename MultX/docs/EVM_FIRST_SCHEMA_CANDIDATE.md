@@ -1,5 +1,10 @@
 # EVM-first schema candidate
 
+Superseded as the launch proposal by the client-confirmed native swap direction.
+See [Native swap delivery plan](NATIVE_SWAP_DELIVERY_PLAN.md). Retained as
+historical candidate documentation; its one-asset topology does not satisfy the
+confirmed product scope. Existing review archives remain unchanged.
+
 Unaccepted extension of source-accepted commit 465f6868555ba528d1d9417885a791ae573bbd5a.
 
 Schema version 1 retains its accepted LITHO-origin topology. New version 2
