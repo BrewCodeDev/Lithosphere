@@ -7,6 +7,10 @@ const root = path.resolve(__dirname, '..');
 const group = process.argv[2];
 const cases = {
   contracts: [
+    ['E01 rollout marker', 'scripts/mainnet/rollout-policy.js', "input.rollout !== 'evm-first'", 'false'],
+    ['E01 profile agreement', 'scripts/mainnet/verify-deployment-readonly.js', "manifest.schemaVersion !== plan.schemaVersion || require('./rollout-policy').rolloutPolicy(manifest).source !== sourceChainId", 'false'],
+    ['E01 plan asset count', 'scripts/mainnet/validate-deployment-plan.js', 'input.schemaVersion === 2 && input.assets.length !== 1', 'false'],
+    ['E01 manifest asset count', 'scripts/mainnet/validate-deployment-manifest.js', 'input.schemaVersion === 2 && chain.assets.length !== 1', 'false'],
     ['EVM origin allowlist', 'scripts/mainnet/rollout-policy.js', '!chains.includes(input.sourceChainId)', 'false'],
     ['EVM source creation selection', 'scripts/mainnet/verify-deployment-readonly.js', 'chain.chainId === sourceChainId ? evidence.contracts.sourceBridge.creationBytecode : evidence.contracts.destinationBridge.creationBytecode', 'evidence.contracts.destinationBridge.creationBytecode'],
     ['EVM destination creation selection', 'scripts/mainnet/verify-deployment-readonly.js', 'chain.chainId === sourceChainId ? evidence.contracts.sourceBridge.creationBytecode : evidence.contracts.destinationBridge.creationBytecode', 'evidence.contracts.sourceBridge.creationBytecode'],
@@ -39,6 +43,7 @@ const cases = {
     ['stale compiler source', 'scripts/mainnet/generate-bytecode-evidence.js', "!local.equals(Buffer.from(input.content, 'utf8'))", 'false'],
   ],
   api: [
+    ['E01 API schema allowlist', 'src/networkConfig.js', 'input.schemaVersion !== undefined && ![1,2].includes(input.schemaVersion)', 'false'],
     ['EVM explicit origin', 'src/networkConfig.js', '(!requiredIds.has(input.sourceChainId))', 'false'],
     ['EVM reciprocal token mapping', 'src/networkConfig.js', 'forward.releaseToken!==reverse.sourceToken', 'false'],
     ['EVM exact route count', 'src/networkConfig.js', 'tokenPairs.length !== destinations.length * 2', 'false'],

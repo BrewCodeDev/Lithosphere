@@ -112,6 +112,29 @@ function fixture() {
     return {plan,manifest,planBytes};
   }
 describe('approved deployment root binding', function () {
+  it('requires the schema-2 rollout declaration', function () {
+    const { validateDeploymentPlan } = require('../scripts/mainnet/validate-deployment-plan');
+    for (const rollout of [undefined, 'other']) {
+      const f = evmFixture(1); f.plan.rollout = rollout;
+      expect(() => validateDeploymentPlan(f.plan)).to.throw('requires evm-first rollout');
+    }
+  });
+  it('checks agreement before downstream identity checks on independently valid profiles', function () {
+    const approved = evmFixture(1), other = evmFixture(56);
+    other.manifest.release.deploymentPlanSha256 = digest(approved.planBytes);
+    expect(() => verifyApprovedDeploymentBindings(approved.planBytes, evidenceBytes, other.manifest))
+      .to.throw('rollout profile does not match approved plan');
+  });
+  it('rejects otherwise valid additional assets in each schema-2 validator', function () {
+    const { validateDeploymentPlan } = require('../scripts/mainnet/validate-deployment-plan');
+    const { validateDeploymentManifest } = require('../scripts/mainnet/validate-deployment-manifest');
+    const f = evmFixture(1);
+    f.plan.assets.push({...f.plan.assets[0], symbol:'SECOND', originToken:addr(501),
+      destinationTokenAddresses:{56:addr(502),8453:addr(503)}});
+    expect(() => validateDeploymentPlan(f.plan)).to.throw('exactly one origin asset');
+    for (const chain of f.manifest.chains) chain.assets.push({...chain.assets[0],symbol:'SECOND',address:addr(500+chain.chainId)});
+    expect(() => validateDeploymentManifest(f.manifest)).to.throw('exactly one origin asset');
+  });
   for(const origin of [1,56,8453]) it(`binds explicit EVM-first origin ${origin} and rejects rollout drift`,()=>{
     const f=evmFixture(origin);
     expect(()=>verifyApprovedDeploymentBindings(f.planBytes,evidenceBytes,f.manifest)).not.to.throw();

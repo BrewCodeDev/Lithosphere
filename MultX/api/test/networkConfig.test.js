@@ -73,6 +73,13 @@ test('EVM-first rejects additional asset routes even when all required pairs rem
   assert.throws(() => validateProductionNetworkConfig(input), /exact bidirectional origin routes/);
 });
 
+test('rejects unknown schemas even with an otherwise valid legacy profile', () => {
+  for (const schemaVersion of [0,3,'1',null]) {
+    const input = candidate(); input.schemaVersion = schemaVersion;
+    assert.throws(() => validateProductionNetworkConfig(input), /unsupported network schemaVersion/);
+  }
+});
+
 test('rejects a historical testnet source chain', () => {
   const input = candidate();
   input.sourceChainId = 900523;
