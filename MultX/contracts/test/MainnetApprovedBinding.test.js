@@ -94,6 +94,55 @@ function fixture() {
 }
 
 describe('approved deployment root binding', function () {
+  it('enforces the live threshold through the deployment verifier call site', async function () {
+    const { ethers } = require('ethers');
+    const { verifyDeploymentReadonly } = require('../scripts/mainnet/verify-deployment-readonly');
+    const f = fixture(), plan = JSON.parse(f.planBytes);
+    const ev = JSON.parse(evidenceBytes);
+    const runtime = '0x6000', runtimeHash = digest(Buffer.from('6000', 'hex'));
+    ev.contracts.sourceBridge.runtimeSha256 = runtimeHash;
+    plan.release.sourceBridgeRuntimeSha256 = runtimeHash;
+    f.manifest.release.sourceBridgeRuntimeSha256 = runtimeHash;
+    f.manifest.chains[0].bridge.runtimeSha256 = runtimeHash;
+    const evBytes = Buffer.from(JSON.stringify(ev));
+    plan.release.bytecodeEvidenceSha256 = digest(evBytes);
+    f.manifest.release.bytecodeEvidenceSha256 = digest(evBytes);
+    const bytes = Buffer.from(JSON.stringify(plan));
+    f.manifest.release.deploymentPlanSha256 = digest(bytes);
+    const chain = f.manifest.chains[0], approved = plan.chains[0];
+    const iface = new ethers.utils.Interface([
+      'function owner() view returns(address)', 'function pauseGuardian() view returns(address)',
+      'function paused() view returns(bool)', 'function signaturesRequired() view returns(uint256)',
+    ]);
+    let threshold = 3, downstreamReached = false;
+    const provider = {
+      _isProvider: true,
+      getNetwork: async () => ({chainId:9005}), getBlockNumber: async () => 1000,
+      getBlock: async () => ({hash:'0x'+'a'.repeat(64)}),
+      getCode: async (_address, block) => block === 99 ? '0x' : runtime,
+      resolveName: async name => name,
+      getTransactionReceipt: async hash => {
+        if (hash !== chain.bridge.deploymentTxHash) { downstreamReached = true; throw Error('DOWNSTREAM_GOVERNANCE_BOUNDARY'); }
+        return {status:1, blockNumber:100, contractAddress:chain.bridge.address};
+      },
+      getTransaction: async hash => ({hash, from:approved.deployer, data:'0x60'}),
+      call: async ({data}) => {
+        const name = iface.parseTransaction({data}).name;
+        return iface.encodeFunctionResult(name, [{owner:approved.timelock, pauseGuardian:approved.pauseGuardian, paused:true, signaturesRequired:threshold}[name]]);
+      },
+    };
+    const run = () => verifyDeploymentReadonly(f.manifest, {planBytes:bytes,evidenceBytes:evBytes}, () => provider);
+    let error;
+    try { await run(); } catch (e) { error = e; }
+    expect(error.message).to.equal('DOWNSTREAM_GOVERNANCE_BOUNDARY');
+    expect(downstreamReached).to.equal(true);
+    for (const wrong of [2, 4, 5]) {
+      threshold = wrong; downstreamReached = false; error = undefined;
+      try { await run(); } catch (e) { error = e; }
+      expect(error.message).to.equal('Chain 9005 threshold is not 3');
+      expect(downstreamReached).to.equal(false);
+    }
+  });
   it('rejects valid but byte-different approved plan without relying on policy drift', function () {
     const { planBytes, manifest } = fixture();
     const changed = Buffer.concat([planBytes, Buffer.from('\n')]);

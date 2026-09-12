@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, '..');
 const group = process.argv[2];
 const cases = {
   contracts: [
+    ['candidate threshold call site', 'scripts/mainnet/verify-deployment-readonly.js', 'verifyRequiredThreshold(threshold, chain.name);', '/* omitted for mutation */'],
     ['candidate live threshold', 'scripts/mainnet/verify-deployment-readonly.js', "threshold.toString() !== '3'", 'false'],
     ['plan digest', 'scripts/mainnet/verify-deployment-readonly.js', 'sha256Bytes(planBytes) !== manifest.release.deploymentPlanSha256.toLowerCase()', 'false'],
     ['evidence plan digest', 'scripts/mainnet/verify-deployment-readonly.js', 'sha256Bytes(evidenceBytes) !== plan.release.bytecodeEvidenceSha256.toLowerCase()', 'false'],
