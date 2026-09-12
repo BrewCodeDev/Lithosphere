@@ -70,8 +70,10 @@ swap successful because the bridge leg alone completed.
 | 5 | Assemble candidate for Autha and operator review | Exact source/build evidence, threat model, end-to-end rehearsal, custody and governance decisions |
 | 6 | Prepare paused deployment, verification and canary | Client/governance deployment authorization and activation approval; actual deployment evidence before enabling any route |
 
-Step 1 is the next independent development task. Live contract addresses are not
-needed for synthetic policy tests. Steps 2 onward must not infer missing deployment
+Step 1 now has an offline validator and synthetic route-policy tests; see
+[Native route policy](NATIVE_ROUTE_POLICY.md) for its input contract and limits.
+Recovery declarations are checked, but the durable state machine remains step 4.
+Live contract addresses were not needed for these synthetic tests. Steps 2 onward must not infer missing deployment
 records or use historical testnet addresses as mainnet configuration.
 
 ## Recovery and acceptance requirements
