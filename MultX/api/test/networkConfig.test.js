@@ -67,6 +67,12 @@ for(const origin of [1,56,8453]) test(`EVM-first origin ${origin} enforces exact
 });
 
 
+test('EVM-first rejects additional asset routes even when all required pairs remain', () => {
+  const input = evmCandidate(1);
+  input.tokenPairs.push({...input.tokenPairs[0],sourceToken:bridge(999)});
+  assert.throws(() => validateProductionNetworkConfig(input), /exact bidirectional origin routes/);
+});
+
 test('rejects a historical testnet source chain', () => {
   const input = candidate();
   input.sourceChainId = 900523;

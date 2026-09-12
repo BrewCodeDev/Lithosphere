@@ -31,3 +31,13 @@ Quorum 3-of-5, approved hashes, custody, governance, pause, finality and evidenc
 gates remain in force. All addresses, assets, liquidity and actual deployment
 parameters remain unapproved placeholders until supplied. Review this schema
 candidate separately; the previous source acceptance does not cover it.
+
+Verification coverage includes the complete read-only verifier against deterministic
+RPC doubles for each origin. No verifier or governance helper is replaced. These
+tests exercise bridge creation, Safe/Timelock checks, token history, validators,
+routes and wrapped-token identity through the public entry point. Negative cases
+reject swapped source/destination creation bytecode, wrong wrapped origins and
+extra destination routes. Targeted mutations test the origin allowlist, creation
+selection, wrapped-origin guard and route-verification call site. API mutations
+cover explicit origin, reciprocal token mapping and the exact route count.
+This is simulated RPC coverage; a deployed-chain rehearsal remains outstanding.

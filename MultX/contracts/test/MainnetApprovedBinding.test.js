@@ -93,7 +93,6 @@ function fixture() {
   return { planBytes, manifest };
 }
 
-describe('approved deployment root binding', function () {
   function evmFixture(origin) {
     const f=fixture(), plan=JSON.parse(f.planBytes), manifest=f.manifest;
     for(const document of [plan,manifest]) {
@@ -112,6 +111,7 @@ describe('approved deployment root binding', function () {
     const planBytes=Buffer.from(JSON.stringify(plan)); manifest.release.deploymentPlanSha256=digest(planBytes);
     return {plan,manifest,planBytes};
   }
+describe('approved deployment root binding', function () {
   for(const origin of [1,56,8453]) it(`binds explicit EVM-first origin ${origin} and rejects rollout drift`,()=>{
     const f=evmFixture(origin);
     expect(()=>verifyApprovedDeploymentBindings(f.planBytes,evidenceBytes,f.manifest)).not.to.throw();
@@ -222,6 +222,8 @@ describe('approved deployment root binding', function () {
   });
 });
 
+
+module.exports = { evmFixture, evidence, digest };
 
 describe('native identity approved-plan integration', function () {
   function nativeFixture() {
