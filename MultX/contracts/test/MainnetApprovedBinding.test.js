@@ -94,6 +94,41 @@ function fixture() {
 }
 
 describe('approved deployment root binding', function () {
+  function evmFixture(origin) {
+    const f=fixture(), plan=JSON.parse(f.planBytes), manifest=f.manifest;
+    for(const document of [plan,manifest]) {
+      document.schemaVersion=2; document.rollout='evm-first'; document.sourceChainId=origin;
+      document.chains=document.chains.filter(c=>c.chainId!==origin);
+      const source=document.chains.find(c=>c.chainId===9005);
+      source.chainId=origin;
+    }
+    const asset=plan.assets[0]; asset.originChainId=origin;
+    asset.destinationChainIds=asset.destinationChainIds.filter(id=>id!==origin);
+    delete asset.destinationTokenAddresses[origin]; delete asset.dailyCapBaseUnits[9005];
+    for(const chain of manifest.chains) for(const token of chain.assets) {
+      token.targetChainIds=chain.chainId===origin?asset.destinationChainIds:[origin];
+      if(token.kind==='wrapped') token.originChainId=origin;
+    }
+    const planBytes=Buffer.from(JSON.stringify(plan)); manifest.release.deploymentPlanSha256=digest(planBytes);
+    return {plan,manifest,planBytes};
+  }
+  for(const origin of [1,56,8453]) it(`binds explicit EVM-first origin ${origin} and rejects rollout drift`,()=>{
+    const f=evmFixture(origin);
+    expect(()=>verifyApprovedDeploymentBindings(f.planBytes,evidenceBytes,f.manifest)).not.to.throw();
+    for(const mutate of [
+      p=>{delete p.sourceChainId;}, p=>{p.sourceChainId=9005;},
+      p=>{p.chains.push({...p.chains[0],chainId:9005});},
+      p=>{p.assets[0].originChainId=9005;},
+      p=>{p.assets[0].destinationChainIds=[9005];},
+      p=>{p.chains[0].bridgeKind='destination';},
+    ]) {
+      const next=evmFixture(origin); mutate(next.plan);
+      const bytes=Buffer.from(JSON.stringify(next.plan)); next.manifest.release.deploymentPlanSha256=digest(bytes);
+      expect(()=>verifyApprovedDeploymentBindings(bytes,evidenceBytes,next.manifest)).to.throw();
+    }
+    f.manifest.sourceChainId=origin===1?56:1;
+    expect(()=>verifyApprovedDeploymentBindings(f.planBytes,evidenceBytes,f.manifest)).to.throw();
+  });
   it('enforces the live threshold through the deployment verifier call site', async function () {
     const { ethers } = require('ethers');
     const { verifyDeploymentReadonly } = require('../scripts/mainnet/verify-deployment-readonly');

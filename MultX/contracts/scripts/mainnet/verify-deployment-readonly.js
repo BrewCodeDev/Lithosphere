@@ -89,6 +89,8 @@ function verifyApprovedDeploymentBindings(planBytes, evidenceBytes, manifest) {
   const evidence = validateBytecodeEvidence(evidenceBytes);
   validateDeploymentPlan(plan);
   validateDeploymentManifest(manifest);
+  const sourceChainId = require('./rollout-policy').rolloutPolicy(plan).source;
+  if (manifest.schemaVersion !== plan.schemaVersion || require('./rollout-policy').rolloutPolicy(manifest).source !== sourceChainId) throw new Error('rollout profile does not match approved plan');
   if (sha256Bytes(planBytes) !== manifest.release.deploymentPlanSha256.toLowerCase()) {
     throw new Error('approved deployment plan SHA-256 does not match manifest');
   }
@@ -143,13 +145,13 @@ function verifyApprovedDeploymentBindings(planBytes, evidenceBytes, manifest) {
     for (const approvedAsset of plan.assets) {
       const asset = chain.assets.find((item) => item.symbol.toLowerCase() === approvedAsset.symbol.toLowerCase());
       if (!asset) throw new Error(`${chain.name} is missing approved asset ${approvedAsset.symbol}`);
-      const expectedTargets = chain.chainId === 9005 ? approvedAsset.destinationChainIds : [9005];
+      const expectedTargets = chain.chainId === sourceChainId ? approvedAsset.destinationChainIds : [sourceChainId];
       if (asset.targetChainIds.map(Number).sort().join(',') !== [...expectedTargets].map(Number).sort().join(',') ||
           asset.dailyCapBaseUnits !== approvedAsset.dailyCapBaseUnits[String(chain.chainId)]) {
         throw new Error(`${chain.name} ${asset.symbol} routes or cap do not match approved plan`);
       }
-      if (chain.chainId === 9005) {
-        if (identityType(asset, 9005, asset.address) !== identityType(approvedAsset, 9005, approvedAsset.originToken)) {
+      if (chain.chainId === sourceChainId) {
+        if (identityType(asset, sourceChainId, asset.address) !== identityType(approvedAsset, sourceChainId, approvedAsset.originToken)) {
           throw new Error('asset identity type does not match approved plan');
         }
         if (!equalAddress(asset.address, approvedAsset.originToken)) {
@@ -297,6 +299,7 @@ async function verifyTokenUniverse(provider, bridge, chain, blockTag) {
 
 async function verifyDeploymentReadonly(manifest, approvedInputs, providerFactory = (rpc) => new ethers.providers.JsonRpcProvider(rpc)) {
   const { plan, evidence } = verifyApprovedDeploymentBindings(approvedInputs?.planBytes, approvedInputs?.evidenceBytes, manifest);
+  const sourceChainId = require('./rollout-policy').rolloutPolicy(plan).source;
   const results = [];
   for (const chain of manifest.chains) {
     const provider = providerFactory(chain.rpcHttps, chain.chainId);
@@ -314,7 +317,7 @@ async function verifyDeploymentReadonly(manifest, approvedInputs, providerFactor
       provider, chain.bridge.address, chain.bridge.deploymentTxHash,
       chain.bridge.deploymentBlock, `${chain.name} bridge`,
       plan.chains.find((item) => item.chainId === chain.chainId).deployer,
-      chain.chainId === 9005 ? evidence.contracts.sourceBridge.creationBytecode : evidence.contracts.destinationBridge.creationBytecode,
+      chain.chainId === sourceChainId ? evidence.contracts.sourceBridge.creationBytecode : evidence.contracts.destinationBridge.creationBytecode,
     );
     const bridgeCode = await provider.getCode(chain.bridge.address, verificationBlock);
     if (bridgeCode === '0x') throw new Error(`${chain.name} bridge has no bytecode`);
@@ -381,7 +384,7 @@ async function verifyDeploymentReadonly(manifest, approvedInputs, providerFactor
           token.bridge({ blockTag: verificationBlock }),
           token.totalSupply({ blockTag: verificationBlock }),
         ]);
-        if (originChainId.toNumber() !== 9005) throw new Error(`${chain.name} ${asset.symbol} origin chain mismatch`);
+        if (originChainId.toNumber() !== sourceChainId) throw new Error(`${chain.name} ${asset.symbol} origin chain mismatch`);
         if (originToken.toLowerCase() !== asset.originToken.toLowerCase()) throw new Error(`${chain.name} ${asset.symbol} origin token mismatch`);
         if (immutableBridge.toLowerCase() !== chain.bridge.address.toLowerCase()) {
           throw new Error(`${chain.name} ${asset.symbol} immutable bridge mismatch`);

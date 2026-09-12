@@ -100,7 +100,7 @@ describe('mainnet deployment plan', () => {
     expect(() => validateDeploymentPlan(plan)).to.throw('chains must contain');
     const second = validPlan();
     second.assets[0].destinationChainIds = [1, 56];
-    expect(() => validateDeploymentPlan(second)).to.throw('must contain 1, 56 and 8453');
+    expect(() => validateDeploymentPlan(second)).to.throw('must contain 1, 56, 8453');
   });
 
   it('rejects unsafe governance separation and short timelocks', () => {

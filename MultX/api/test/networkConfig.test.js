@@ -43,6 +43,29 @@ test('accepts an explicit LITHO and external-mainnet manifest', () => {
   assert.equal(result.tokenPairs.length, 2);
 });
 
+function evmCandidate(origin) {
+  const input=candidate(); input.schemaVersion=2; input.rollout='evm-first'; input.environment='multx-evm-mainnet';
+  input.sourceChainId=origin; input.originTokenAddress=bridge(100); delete input.lithoTokenAddress;
+  input.supportedChains=input.supportedChains.filter(c=>c.chainId!==9005);
+  input.chainsToWatch=input.chainsToWatch.filter(c=>c.chainId!==9005);
+  input.tokenPairs=[1,56,8453].filter(id=>id!==origin).flatMap(id=>[
+    {sourceChain:origin,sourceToken:bridge(100),targetChain:id,releaseToken:bridge(id+200)},
+    {sourceChain:id,sourceToken:bridge(id+200),targetChain:origin,releaseToken:bridge(100)},
+  ]);
+  return input;
+}
+for(const origin of [1,56,8453]) test(`EVM-first origin ${origin} enforces exact reciprocal routes`,()=>{
+  const input=evmCandidate(origin); assert.equal(validateProductionNetworkConfig(input).sourceChainId,origin);
+  for(const mutate of [
+    p=>{delete p.sourceChainId;}, p=>{p.sourceChainId=9005;}, p=>{p.sourceChainId=String(origin);},
+    p=>{p.tokenPairs.pop();}, p=>{p.tokenPairs[1].releaseToken=bridge(99);},
+    p=>{p.tokenPairs[1].sourceToken=bridge(99);}, p=>{p.lithoTokenAddress=bridge(100);},
+    p=>{p.supportedChains.push({chainId:9005,name:'extra',symbol:'LITHO',bridge:bridge(999)});},
+    p=>{p.schemaVersion=3;}, p=>{p.rollout='other';},
+    p=>{p.tokenPairs.push({sourceChain:input.tokenPairs[0].targetChain,targetChain:input.tokenPairs[2].targetChain,sourceToken:bridge(44),releaseToken:bridge(55)});},
+  ]) {const next=evmCandidate(origin); mutate(next); assert.throws(()=>validateProductionNetworkConfig(next));}
+});
+
 
 test('rejects a historical testnet source chain', () => {
   const input = candidate();
