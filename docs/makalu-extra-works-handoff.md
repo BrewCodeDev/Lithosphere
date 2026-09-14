@@ -88,6 +88,12 @@ v0.9.2 source, passes 33 tests and CI run `34646653187`, and its merged file mat
 evidence-backed checklist as `839cc3b92c1d0950165d78864c945fdb4b7f5236` after `@lithoagent` approved exact
 signed head `af42b5ac4304cfb47d66c508f67f3c623b674df1` and all checks passed. Public PR #179 merged the verified Autha/toolchain disposition record as
 `e75202012bc35fd480f1c009ba482b94118de951`; both its signed head and GitHub merge commit report valid signatures.
+Public PR #183 is open at signed `bachal-mb` head `9a4a33bf1d1c637b0483260835d2aaaa6416b427` with all current
+checks passing. It adds a manual protected workflow to publish only the Autha-accepted v0.9.2 API image after
+`@lithoagent` review. The required `multx-image-publish` environment exists with `@lithoagent` as reviewer,
+self-review prevention enabled, admin bypass disabled, and zero environment secrets. Private PR #30 is open with
+passing CI to pin the accepted source and reviewed collector identities in the schema-v2 example plan while leaving
+all operational inputs fail-closed.
 None of these merges authorizes staging execution, deployment, signing, liquidity, or activation.
 
 The worktree is shared and contains pre-existing changes across several streams. Preserve them, isolate each stream
@@ -100,7 +106,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | MX-03 | Thanos Wallet | Repository work merged and deployed; acceptance open | EXTERNAL BLOCKER | Wallet team completes the published-version browser matrix, signed transaction, and approval record. |
 | MX-04 | DNNS | Verified explorer hardening merged and deployed; owner acceptance open | EXTERNAL BLOCKER | DNNS owner confirms the supported interface, fixes public docs, nominates a reverse record, and accepts cache policy. |
 | MX-05 | Quantt | Assumption-free gates deployed; adapter remains disabled | EXTERNAL BLOCKER | Quantt owner supplies the API contract/credential and fixes or replaces the development TLS endpoint. |
-| MX-01 | MultX / Lithoswap | Accepted v0.9.2 lineage and reviewed gates are on public `main`; private readiness, routing, schema-v2 verifier, and reviewed collector are merged; formal PR #27 acceptance, approved run inputs, and O-01/package O-02 readiness remain open; mainnet disabled | IN PROGRESS | Obtain verifiable written PR #27 acceptance; then privately supply and approve the image, isolated database/read-only role, four-chain route/RPC/finality, operator/reviewer, host/window, and retention inputs before any disabled-staging run. |
+| MX-01 | MultX / Lithoswap | Accepted v0.9.2 lineage and reviewed gates are on public `main`; private readiness, routing, schema-v2 verifier, and reviewed collector are merged; image-publication PR #183 and plan-pinning PR #30 are open with checks passing; formal PR #27 acceptance, approved run inputs, and O-01/package O-02 readiness remain open; mainnet disabled | IN PROGRESS | Obtain reviews/merge for PR #183 and private PR #30; publish and independently accept the immutable image digest; obtain verifiable written PR #27 acceptance; then privately supply and approve isolated database/read-only role, four-chain route/RPC/finality, operator/reviewer, host/window, and retention inputs before any disabled-staging run. |
 | MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; four tools remain specification-only and there is no deployable compiler/public release | IN PROGRESS | Obtain approved language/VM semantics and product/release/security acceptance before compiler or public-release work. |
 
 ## Sequential closure queue
@@ -273,6 +279,13 @@ Remaining actions:
       `627cc75f44404c2f0da3f6e34acae4e34401a89c`. `@lithoagent` approved that exact head, it merged as
       `3e9c782b67e3f3a47aebdc2e49f4b4ec8aedbe58`, and repository/commit/SHA-256 are recorded in private issue #28;
       the completed schema-v2 plan must use these exact identities.
+- [ ] Review and merge public image-publication PR #183, then dispatch the protected workflow after `@lithoagent`
+      environment approval. Record the immutable `ghcr.io/...@sha256:...` image, signature, provenance, SBOM, and run
+      URL in the private schema-v2 plan before checking the image input complete. PR #183 currently has all checks
+      passing and the `multx-image-publish` environment is protected with no environment secrets, but no image has
+      been published yet.
+- [ ] Review and merge private plan-pinning PR #30. It pins the accepted v0.9.2 source identity and independently
+      reviewed collector identity in the example plan, while every operational input remains fail-closed.
 - [x] Complete the retained disposable-node real elapsed-time native cap rollover once after
       `2026-09-10 12:29:01 UTC` and preserve the passed result. The non-idempotent finish is complete and must not be
       rerun. Evidence archive SHA-256:
@@ -1025,8 +1038,24 @@ Evidence:
 | 2026-09-12 | MX-01 disposition record | PUBLIC PR MERGED, SIGNATURES VALID | Public PR #179 merged as `e75202012bc35fd480f1c009ba482b94118de951`; its exact `bachal-mb` head `791c9135b6b6be540668b91cd8bf8eb8de56ba4a` and GitHub merge commit both report valid signatures, `@lithoagent` approved that exact head, and all reported checks passed. This records evidence only and does not authorize deployment or activation. |
 | 2026-09-12 | Live explorer safety-gate recheck | PASS, BLOCKERS UNCHANGED | Makalu reports EVM/Cosmos IDs `700777` / `lithosphere_700777-2`, Faucet and Bridge enabled, and Swap disabled. Its faucet still reports native LITHO plus ten LEP100 assets; every LEP100 balance remains below the minimum ten-token claim. Quantt still reports `configured: false`. LITHO mainnet reports IDs `9005` / `lithosphere_9005-1` with Faucet, Bridge, and Swap disabled. No checklist item was closed by this observation. |
 | 2026-09-14 | Evidence-backed checklist | PUBLIC PR APPROVED AND MERGED | `@lithoagent` approved exact signed `bachal-mb` head `af42b5ac4304cfb47d66c508f67f3c623b674df1`; all PR #181 checks passed and it merged as `839cc3b92c1d0950165d78864c945fdb4b7f5236`. |
+| 2026-09-14 | MX-01 API image publication gate | PUBLIC PR OPEN, CHECKS PASS, ENVIRONMENT PROTECTED | Public PR #183 at signed `bachal-mb` head `9a4a33bf1d1c637b0483260835d2aaaa6416b427` adds a manual workflow to publish only the Autha-accepted v0.9.2 API image. All reported PR checks pass. The `multx-image-publish` environment exists with `@lithoagent` required review, self-review prevention, admin bypass disabled, and zero environment secrets. No image publication, staging run, deployment, signer request, transaction, or activation occurred. |
+| 2026-09-14 | MX-01 schema-v2 plan pinning | PRIVATE PR OPEN, CHECKS PASS | Private PR #30 at signed `bachal-mb` head `9044ca6c248ca2a3bb632e36acbdcdfaea23c1d2` pins the accepted v0.9.2 source commit, Autha receipt reference, reviewed collector commit, and collector SHA-256 in the example schema-v2 plan. CI `offline-verifier` passes, and unresolved operational inputs remain fail-closed. |
 
 ## Change log
+
+### 2026-09-14 - MX-01 image publication path opened
+
+- Opened public PR #183 at signed `bachal-mb` head
+  `9a4a33bf1d1c637b0483260835d2aaaa6416b427` to add a protected manual workflow for publishing only the
+  Autha-accepted v0.9.2 API image. All reported PR checks pass; `@lithoagent` review remains required.
+- Configured the `multx-image-publish` GitHub environment with `@lithoagent` as required reviewer, self-review
+  prevention enabled, admin bypass disabled, and zero environment secrets.
+- Opened private PR #30 at signed `bachal-mb` head
+  `9044ca6c248ca2a3bb632e36acbdcdfaea23c1d2` to pin the accepted source and reviewed collector identities in the
+  schema-v2 example plan. Its `offline-verifier` check passes; review and merge remain open.
+- No image was published, and no staging run, endpoint/database access, signer request, chain transaction,
+  deployment, liquidity action, or feature activation occurred.
+- Updated by: `bachal-mb`.
 
 ### 2026-09-14 — MX-01 collector approved and merged
 
