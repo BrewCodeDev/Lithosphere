@@ -10,6 +10,10 @@ on:
       confirmation:
         description: Type PUBLISH_REVIEWED_V092_API to authorize image publication only
         required: true
+  pull_request:
+    paths:
+      - .github/docker/multx-v092-api.Dockerfile
+      - .github/workflows/publish-multx-v092-api.yaml
 
 permissions:
   contents: read
@@ -24,8 +28,62 @@ env:
   IMAGE: ghcr.io/kajlabs/lithosphere/multx-api
 
 jobs:
+  scan-packaging:
+    name: Scan hardened runtime packaging
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out publication controls
+        uses: actions/checkout@v4
+        with:
+          path: publication-control
+
+      - name: Check out exact accepted source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.ACCEPTED_COMMIT }}
+          fetch-depth: 1
+          path: accepted-source
+
+      - name: Verify accepted source identity
+        working-directory: accepted-source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$ACCEPTED_COMMIT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build hardened candidate locally
+        uses: docker/build-push-action@v6
+        with:
+          context: accepted-source/MultX/api
+          file: publication-control/.github/docker/multx-v092-api.Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: multx-v092-api:scan
+          labels: |
+            org.opencontainers.image.source=https://github.com/KaJLabs/Lithosphere
+            org.opencontainers.image.revision=${{ env.ACCEPTED_COMMIT }}
+            org.opencontainers.image.version=multx-v0.9.2
+            ai.multx.source-archive-sha256=${{ env.ACCEPTED_SOURCE_SHA256 }}
+          cache-from: type=gha,scope=multx-v092-api-hardened
+          cache-to: type=gha,mode=max,scope=multx-v092-api-hardened
+
+      - name: Reject HIGH or CRITICAL image findings
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: multx-v092-api:scan
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+
   validate:
     name: Validate exact accepted source
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -67,6 +125,7 @@ jobs:
 
   publish:
     name: Scan, publish, sign, and attest
+    if: github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -80,12 +139,21 @@ jobs:
     outputs:
       digest: ${{ steps.publish.outputs.digest }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out publication controls
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: publication-control
+
+      - name: Check out exact accepted source
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.ACCEPTED_COMMIT }}
           fetch-depth: 1
+          path: accepted-source
 
       - name: Verify checkout identity
+        working-directory: accepted-source
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$ACCEPTED_COMMIT"
@@ -95,7 +163,8 @@ jobs:
       - name: Build immutable review candidate locally
         uses: docker/build-push-action@v6
         with:
-          context: MultX/api
+          context: accepted-source/MultX/api
+          file: publication-control/.github/docker/multx-v092-api.Dockerfile
           platforms: linux/amd64
           load: true
           push: false
