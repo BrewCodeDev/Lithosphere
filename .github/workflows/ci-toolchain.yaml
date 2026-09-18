@@ -1,0 +1,270 @@
+name: Lithic Toolchain CI
+
+on:
+  push:
+    paths:
+      - "toolchain/**"
+      - ".github/workflows/ci-toolchain.yaml"
+  pull_request:
+    paths:
+      - "toolchain/**"
+      - ".github/workflows/ci-toolchain.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.asset }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            asset: linux-x86_64
+            extension: ""
+          - os: windows-latest
+            asset: windows-x86_64
+            extension: .exe
+          - os: macos-14
+            asset: macos-aarch64
+            extension: ""
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: toolchain
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install Rust toolchain
+        run: rustup toolchain install 1.96.0 --profile minimal --component rustfmt,clippy
+      - name: Select Rust toolchain
+        run: rustup default 1.96.0
+      - name: Formatting (reviewed front-end slice)
+        run: >-
+          rustfmt --check --edition 2021
+          crates/lithic-syntax/src/lib.rs
+          crates/lithic-syntax/src/sema.rs
+          crates/lithc/src/main.rs
+          crates/lithc/tests/cli.rs
+          crates/lithfmt/src/main.rs
+          crates/lithlint/src/main.rs
+          crates/lithlint/tests/cli.rs
+          crates/lithls/src/main.rs
+          crates/lithls/tests/cli.rs
+          crates/lithdev/src/main.rs
+          crates/lithdev/tests/cli.rs
+          crates/lithtest/src/main.rs
+          crates/lithtest/tests/cli.rs
+          crates/lithsec/src/main.rs
+          crates/lithsec/tests/cli.rs
+          crates/lithpkg/src/main.rs
+          crates/lithpkg/tests/cli.rs
+          crates/litho-pq-conformance/src/lib.rs
+          crates/litho-pq-conformance/src/main.rs
+      - name: Lints (reviewed workspace)
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Tests
+        # PQ verification has a dedicated release-mode x86-64/ARM64 gate below.
+        # Exclude it here to avoid repeating expensive SLH-DSA tests in debug
+        # mode on non-validator desktop platforms.
+        run: cargo test --workspace --exclude litho-pq-conformance --locked
+      - name: Release build
+        run: cargo build --workspace --release --locked
+      - name: lithc check smoke test
+        run: cargo run -p lithc --locked -- --emit check ../Makalu/contracts/src/DOGE.lithic
+      - name: Reviewed example smoke test
+        run: cargo run -p lithc --locked -- --emit check examples/hello.lithic
+      - name: Stage boundary preview
+        id: stage
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $metadata = cargo metadata --locked --no-deps --format-version 1 | ConvertFrom-Json
+          $versions = @($metadata.packages | ForEach-Object { $_.version } | Sort-Object -Unique)
+          if ($versions.Count -ne 1) {
+            throw "Preview packaging requires one workspace version; found: $($versions -join ', ')"
+          }
+
+          $version = $versions[0]
+          $archiveBase = "lithosphere-toolchain-boundary-v$version-${{ matrix.asset }}"
+          $stage = Join-Path "dist" $archiveBase
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+
+          $tools = @("lithc", "lithfmt", "lithlint", "lithls", "lithdev", "lithtest", "lithsec", "lithpkg")
+          foreach ($tool in $tools) {
+            Copy-Item "target/release/$tool${{ matrix.extension }}" $stage
+          }
+          Copy-Item "README.md" $stage
+          Copy-Item "PREVIEW.md" $stage
+          Copy-Item "Cargo.lock" $stage
+          Copy-Item "../LICENSE" $stage
+          Copy-Item "examples" $stage -Recurse
+          Copy-Item "specs" $stage -Recurse
+
+          $manifest = [ordered]@{
+            schemaVersion = 1
+            release = $false
+            version = $version
+            commit = "${{ github.sha }}"
+            platform = "${{ matrix.asset }}"
+            tools = [ordered]@{
+              lithc = "declaration-front-end"
+              lithfmt = "literal-safe-whitespace-v0"
+              lithlint = "declaration-rules-v0"
+              lithls = "specification-only"
+              lithdev = "bounded-local-v0"
+              lithtest = "specification-only"
+              lithsec = "specification-only"
+              lithpkg = "specification-only"
+            }
+          }
+          $manifest | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $stage "manifest.json") -Encoding utf8
+
+          "archive_base=$archiveBase" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "stage=$stage" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      - name: Verify staged command boundaries
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $stage = "${{ steps.stage.outputs.stage }}"
+          $extension = "${{ matrix.extension }}"
+          $version = (Get-Content (Join-Path $stage "manifest.json") | ConvertFrom-Json).version
+
+          foreach ($tool in @("lithc", "lithfmt", "lithlint", "lithls", "lithdev", "lithtest", "lithsec", "lithpkg")) {
+            $output = & (Join-Path $stage "$tool$extension") --help 2>&1
+            $outputText = $output | Out-String
+            if ($LASTEXITCODE -ne 0 -or $outputText -notmatch [regex]::Escape($version)) {
+              throw "$tool did not advertise packaged version $version"
+            }
+          }
+
+          $boundaries = [ordered]@{
+            lithls = "--stdio"
+            lithtest = "--run"
+            lithsec = "--scan"
+            lithpkg = "--resolve"
+          }
+          foreach ($boundary in $boundaries.GetEnumerator()) {
+            & (Join-Path $stage "$($boundary.Key)$extension") $boundary.Value 2>$null
+            if ($LASTEXITCODE -ne 3) {
+              throw "$($boundary.Key) $($boundary.Value) must fail closed with exit code 3"
+            }
+          }
+          exit 0
+      - name: Archive Unix boundary preview
+        if: runner.os != 'Windows'
+        shell: bash
+        working-directory: toolchain/dist
+        run: |
+          set -euo pipefail
+          base="${{ steps.stage.outputs.archive_base }}"
+          tar -czf "${base}.tar.gz" "${base}"
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "${base}.tar.gz" > "${base}.tar.gz.sha256"
+          else
+            shasum -a 256 "${base}.tar.gz" > "${base}.tar.gz.sha256"
+          fi
+      - name: Archive Windows boundary preview
+        if: runner.os == 'Windows'
+        shell: pwsh
+        working-directory: toolchain/dist
+        run: |
+          $ErrorActionPreference = "Stop"
+          $base = "${{ steps.stage.outputs.archive_base }}"
+          $archive = "$base.zip"
+          Compress-Archive -Path $base -DestinationPath $archive
+          $hash = (Get-FileHash -Algorithm SHA256 $archive).Hash.ToLowerInvariant()
+          "$hash  $archive" | Set-Content "$archive.sha256" -Encoding ascii
+      - name: Upload boundary preview
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ steps.stage.outputs.archive_base }}
+          path: toolchain/dist/${{ steps.stage.outputs.archive_base }}.*
+          if-no-files-found: error
+          retention-days: 14
+
+  pq-conformance:
+    name: PQ conformance (${{ matrix.asset }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            asset: linux-x86_64
+          - os: ubuntu-24.04-arm
+            asset: linux-aarch64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: toolchain
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install Rust toolchain
+        run: rustup toolchain install 1.96.0 --profile minimal --component rustfmt,clippy
+      - name: Select Rust toolchain
+        run: rustup default 1.96.0
+      - name: Locked dependency and lint gate
+        run: |
+          cargo clippy -p litho-pq-conformance --all-targets --locked -- -D warnings
+          cargo test -p litho-pq-conformance --release --locked
+      - name: Execute KAT and context-bound self-test
+        run: cargo run -p litho-pq-conformance --release --locked -- self-test
+      - name: Collect performance and process-memory evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p pq-evidence
+          /usr/bin/time -v -o pq-evidence/process-memory.txt \
+            cargo run -p litho-pq-conformance --release --locked -- benchmark \
+            > pq-evidence/benchmark.json
+          jq -e '
+            .schema == 2 and
+            .sample_count == 32 and
+            (.profiles | length) == 3 and
+            (.sample_count as $count |
+              all(.profiles[];
+                all([.keygen, .sign, .verify][];
+                  (.samples_us | length) == $count and
+                  has("mean_us") and has("median_us") and has("p95_us") and
+                  has("min_us") and has("max_us")
+                )
+              )
+            )
+          ' pq-evidence/benchmark.json >/dev/null
+          rustc --version --verbose > pq-evidence/rustc-version.txt
+          uname -a > pq-evidence/platform.txt
+          {
+            echo "ImageOS=${ImageOS:-unknown}"
+            echo "ImageVersion=${ImageVersion:-unknown}"
+            echo "ImageArchitecture=${ImageArchitecture:-unknown}"
+            echo "RUNNER_ARCH=${RUNNER_ARCH:-unknown}"
+            echo "RUNNER_OS=${RUNNER_OS:-unknown}"
+            echo "GITHUB_SHA=${GITHUB_SHA}"
+            echo "GITHUB_RUN_ID=${GITHUB_RUN_ID}"
+            echo "GITHUB_RUN_ATTEMPT=${GITHUB_RUN_ATTEMPT}"
+          } > pq-evidence/runner-image.txt
+      - name: Generate reproducible CycloneDX SBOM
+        if: matrix.asset == 'linux-x86_64'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo install cargo-cyclonedx --version 0.5.9 --locked
+          export SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"
+          cargo cyclonedx --manifest-path crates/litho-pq-conformance/Cargo.toml --format json
+          cp crates/litho-pq-conformance/litho-pq-conformance.cdx.json pq-evidence/
+      - name: RustSec dependency audit
+        if: matrix.asset == 'linux-x86_64'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo install cargo-audit --version 0.22.2 --locked --no-default-features
+          cargo audit --file Cargo.lock --json > pq-evidence/rustsec-audit.json
+      - name: Upload Phase 1 evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: litho-pq-phase1-${{ matrix.asset }}
+          path: toolchain/pq-evidence/
+          if-no-files-found: error
+          retention-days: 30

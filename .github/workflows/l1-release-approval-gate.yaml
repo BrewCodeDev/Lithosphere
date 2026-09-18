@@ -1,0 +1,91 @@
+name: LITHO L1 release approval gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: Exact target network
+        required: true
+        type: choice
+        options: [makalu, kamet, mainnet]
+      release_tag:
+        description: Immutable GitHub release tag containing the candidate binary
+        required: true
+        type: string
+      binary_asset_name:
+        description: Exact candidate binary asset name
+        required: true
+        type: string
+      approval_bundle_path:
+        description: Reviewed approval JSON path in this repository
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  approval:
+    runs-on: ubuntu-latest
+    environment: l1-${{ inputs.target_environment }}-activation
+    env:
+      TARGET_ENVIRONMENT: ${{ inputs.target_environment }}
+      RELEASE_TAG: ${{ inputs.release_tag }}
+      BINARY_ASSET_NAME: ${{ inputs.binary_asset_name }}
+      APPROVAL_BUNDLE_PATH: ${{ inputs.approval_bundle_path }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Reject unsafe input paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          python infra/litho-mainnet-9005/scripts/validate_l1_release_gate_inputs.py \
+            --environment "$TARGET_ENVIRONMENT" \
+            --release-tag "$RELEASE_TAG" \
+            --binary-asset-name "$BINARY_ASSET_NAME" \
+            --approval-bundle-path "$APPROVAL_BUNDLE_PATH"
+
+      - name: Download immutable release candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p candidate
+          gh release download "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "$BINARY_ASSET_NAME" \
+            --dir candidate
+          test -f "candidate/$BINARY_ASSET_NAME"
+
+      - name: Enforce pre-activation approval evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python infra/litho-mainnet-9005/scripts/verify_l1_release_approval.py \
+            --approval "$APPROVAL_BUNDLE_PATH" \
+            --binary "candidate/$BINARY_ASSET_NAME" \
+            --environment "$TARGET_ENVIRONMENT" \
+            --expected-release-id "$RELEASE_TAG" \
+            --release-signing-public-key infra/litho-mainnet-9005/docs/KaJ-Labs-Release-Signing-PublicKey.asc \
+            | tee l1-release-gate.txt
+
+      - name: Record immutable gate receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum \
+            "$APPROVAL_BUNDLE_PATH" \
+            "candidate/$BINARY_ASSET_NAME" \
+            l1-release-gate.txt \
+            > L1_RELEASE_GATE_SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: l1-${{ inputs.target_environment }}-release-gate-${{ github.run_id }}
+          path: |
+            l1-release-gate.txt
+            L1_RELEASE_GATE_SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 90
