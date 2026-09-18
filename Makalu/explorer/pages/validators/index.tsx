@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 
 import DataTable, { type Column } from '@/components/DataTable';
 import ErrorState from '@/components/ErrorState';
@@ -21,11 +22,15 @@ export default function ValidatorsPage() {
     },
     {
       key: 'moniker', header: 'Validator',
-      render: (v) => <span className="font-medium">{v.moniker || v.address?.slice(0, 16) + '...'}</span>,
+      render: (v) => (
+        <Link href={`/validators/${v.address}`} className="font-medium hover:underline">
+          {v.moniker || v.address?.slice(0, 16) + '...'}
+        </Link>
+      ),
     },
     {
       key: 'votingPower', header: 'Voting Power',
-      render: (v) => <span className="font-mono">{v.votingPower}</span>,
+      render: (v) => <span className="font-mono">{v.votingPower} LITHO</span>,
     },
     {
       key: 'commission', header: 'Commission',

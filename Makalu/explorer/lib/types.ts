@@ -261,6 +261,23 @@ export interface ApiValidator {
   status: string;
 }
 
+export interface ApiValidatorDetail extends ApiValidator {
+  consensusAddress: string | null;
+  identity: string | null;
+  website: string | null;
+  securityContact: string | null;
+  details: string | null;
+  tokens: string;
+  delegatorShares: string;
+  minSelfDelegation: string;
+  commissionMaxRate: string;
+  commissionMaxChange: string;
+  jailed: boolean;
+  uptimePercentage: number | null;
+  missedBlocks: string | null;
+  updatedAt: string | null;
+}
+
 export interface SearchResult {
   type: 'block' | 'tx' | 'address' | 'unknown';
 }

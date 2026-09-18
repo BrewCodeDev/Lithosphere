@@ -521,11 +521,23 @@ interface AccountRow {
 
 interface ValidatorRow {
   operator_address: string;
+  consensus_address?: string | null;
+  identity?: string | null;
+  website?: string | null;
+  security_contact?: string | null;
+  details?: string | null;
   moniker: string | null;
   tokens: string;
+  delegator_shares?: string | null;
   commission_rate: string | null;
+  commission_max_rate?: string | null;
+  commission_max_change?: string | null;
+  min_self_delegation?: string | null;
   status: number;
   jailed: boolean;
+  uptime_percentage?: number | null;
+  missed_blocks_counter?: number | string | null;
+  updated_at?: Date | string | null;
 }
 
 interface EvmTxRow {
@@ -1460,6 +1472,15 @@ function mapAddress(
 
 const STATUS_LABELS: Record<number, string> = { 1: 'Unbonded', 2: 'Unbonding', 3: 'Bonded' };
 
+function formatCommission(value: string | null | undefined) {
+  try {
+    const rate = parseFloat(value ?? '0');
+    return (rate * 100).toFixed(2).replace(/\.?0+$/, '') + '%';
+  } catch {
+    return '0%';
+  }
+}
+
 function mapValidator(r: ValidatorRow) {
   // votingPower is in ulitho (18 decimals) — convert to whole LITHO with commas
   let votingPower = '0';
@@ -1470,11 +1491,7 @@ function mapValidator(r: ValidatorRow) {
   } catch { /* keep 0 */ }
 
   // commission_rate is a Cosmos decimal string like "0.100000000000000000" → "10%"
-  let commission = '0%';
-  try {
-    const rate = parseFloat(r.commission_rate ?? '0');
-    commission = (rate * 100).toFixed(2).replace(/\.?0+$/, '') + '%';
-  } catch { /* keep 0% */ }
+  const commission = formatCommission(r.commission_rate);
 
   return {
     address: r.operator_address,
@@ -2235,6 +2252,44 @@ export function explorerRouter(): Router {
   });
 
   // ── Validators ──────────────────────────────────────────────────────────
+
+  r.get('/validators/:operatorAddress', async (req: Request, res: Response) => {
+    try {
+      const rows = await query<ValidatorRow>(
+        'SELECT * FROM validators WHERE operator_address = $1',
+        [req.params.operatorAddress]
+      );
+      const validator = rows[0];
+      if (!validator) {
+        res.status(404).json({ message: 'Validator not found' });
+        return;
+      }
+      res.json({
+        ...mapValidator(validator),
+        consensusAddress: validator.consensus_address ?? null,
+        identity: validator.identity ?? null,
+        website: validator.website ?? null,
+        securityContact: validator.security_contact ?? null,
+        details: validator.details ?? null,
+        tokens: validator.tokens ?? '0',
+        delegatorShares: validator.delegator_shares ?? '0',
+        minSelfDelegation: validator.min_self_delegation ?? '0',
+        commissionMaxRate: formatCommission(validator.commission_max_rate),
+        commissionMaxChange: formatCommission(validator.commission_max_change),
+        jailed: Boolean(validator.jailed),
+        uptimePercentage: validator.uptime_percentage ?? null,
+        missedBlocks: validator.missed_blocks_counter != null
+          ? String(validator.missed_blocks_counter)
+          : null,
+        updatedAt: validator.updated_at instanceof Date
+          ? validator.updated_at.toISOString()
+          : validator.updated_at ?? null,
+      });
+    } catch (err) {
+      logger.error({ err: err instanceof Error ? err.message : String(err) }, '[api] /validators/:operatorAddress error');
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
   r.get('/validators', async (_req: Request, res: Response) => {
     try {
