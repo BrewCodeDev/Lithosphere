@@ -24,11 +24,11 @@ describe('explorer network configuration', () => {
       faucetEnabled: false,
       bridgeEnabled: false,
       walletReady: true,
-      logoPath: '/litho-logo.png',
+      logoPath: '/lithoscan-logo.png',
       faviconPath: '/mainnet-favicon.svg',
       faviconType: 'image/svg+xml',
-      appleTouchIconPath: '/litho-logo.png',
-      walletIconPath: '/litho-logo.png',
+      appleTouchIconPath: '/lithoscan-icon.png',
+      walletIconPath: '/lithoscan-icon.png',
     });
   });
 
@@ -42,13 +42,13 @@ describe('explorer network configuration', () => {
     expect(config.rpcUrl).toBe('');
   });
 
-  it('uses the standard blue Lithosphere mark on Makalu testnet', () => {
+  it('uses the new LithoScan mark on Makalu testnet', () => {
     const config = buildNetworkConfig({
       NEXT_PUBLIC_NETWORK: 'testnet',
       NEXT_PUBLIC_CHAIN_ID: '700777',
     });
 
-    expect(config.logoPath).toBe('/litho-logo.png');
+    expect(config.logoPath).toBe('/lithoscan-icon.png');
     expect(config.faviconPath).toBe('/makalu-testnet-favicon.png');
     expect(config.faviconType).toBe('image/png');
     expect(config.isMainnet).toBe(false);

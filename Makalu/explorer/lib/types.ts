@@ -259,6 +259,11 @@ export interface ApiValidator {
   votingPower: string;
   commission: string;
   status: string;
+  tokens?: string;
+  uptimePercentage?: number | null;
+  missedBlocks?: string | null;
+  jailed?: boolean;
+  updatedAt?: string | null;
 }
 
 export interface ApiValidatorDetail extends ApiValidator {

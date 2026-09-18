@@ -1481,7 +1481,7 @@ function formatCommission(value: string | null | undefined) {
   }
 }
 
-function mapValidator(r: ValidatorRow) {
+function mapValidator(r: ValidatorRow, includeMetrics = false) {
   // votingPower is in ulitho (18 decimals) — convert to whole LITHO with commas
   let votingPower = '0';
   try {
@@ -1493,12 +1493,21 @@ function mapValidator(r: ValidatorRow) {
   // commission_rate is a Cosmos decimal string like "0.100000000000000000" → "10%"
   const commission = formatCommission(r.commission_rate);
 
-  return {
+  const result = {
     address: r.operator_address,
     moniker: r.moniker ?? r.operator_address.slice(0, 16) + '...',
     votingPower,
     commission,
     status: STATUS_LABELS[r.status] ?? 'Unknown',
+  };
+  if (!includeMetrics) return result;
+  return {
+    ...result,
+    tokens: r.tokens ?? '0',
+    uptimePercentage: r.uptime_percentage ?? null,
+    missedBlocks: r.missed_blocks_counter != null ? String(r.missed_blocks_counter) : null,
+    jailed: Boolean(r.jailed),
+    updatedAt: r.updated_at instanceof Date ? r.updated_at.toISOString() : r.updated_at ?? null,
   };
 }
 
@@ -2291,12 +2300,32 @@ export function explorerRouter(): Router {
     }
   });
 
-  r.get('/validators', async (_req: Request, res: Response) => {
+  r.get('/validators', async (req: Request, res: Response) => {
     try {
+      const search = typeof req.query.search === 'string' ? req.query.search.trim().slice(0, 100) : '';
+      const sector = typeof req.query.sector === 'string' ? req.query.sector : '';
+      const sort = typeof req.query.sort === 'string' ? req.query.sort : 'tokens';
+      const orderBy = sector === 'uptime' || sort === 'uptime'
+        ? 'uptime_percentage DESC NULLS LAST, tokens DESC'
+        : sort === 'commission'
+          ? 'commission_rate ASC NULLS LAST, tokens DESC'
+          : sort === 'missed'
+            ? 'missed_blocks_counter ASC NULLS LAST, tokens DESC'
+            : 'tokens DESC';
+      const where: string[] = [];
+      const params: string[] = [];
+      if (search) {
+        params.push(`%${search}%`);
+        where.push(`(moniker ILIKE $${params.length} OR operator_address ILIKE $${params.length})`);
+      }
+      if (req.query.status === 'active') where.push('status = 3 AND jailed = FALSE');
+      if (req.query.status === 'inactive') where.push('(status <> 3 OR jailed = TRUE)');
+      const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
       const rows = await query<ValidatorRow>(
-        'SELECT * FROM validators ORDER BY tokens DESC LIMIT 100'
+        `SELECT * FROM validators ${whereSql} ORDER BY ${orderBy} LIMIT 100`,
+        params
       );
-      res.json(rows.map(mapValidator));
+      res.json(rows.map((row) => mapValidator(row, req.query.metrics === '1')));
     } catch (err) {
       logger.error({ err: err instanceof Error ? err.message : String(err) }, '[api] /validators error');
       res.status(500).json({ error: 'Internal server error' });

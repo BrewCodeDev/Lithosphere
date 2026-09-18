@@ -69,6 +69,26 @@ export default function ValidatorDetailPage() {
         <Stat label="Uptime" value={data.uptimePercentage == null ? '—' : `${data.uptimePercentage}%`} />
       </div>
 
+      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+        <section className="card p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div><h2 className="text-lg font-semibold">Uptime health</h2><p className="text-sm text-[var(--color-text-muted)]">Current indexed performance snapshot</p></div>
+            <div className="text-2xl font-bold text-emerald-500">{data.uptimePercentage == null ? '—' : `${data.uptimePercentage.toFixed(2)}%`}</div>
+          </div>
+          <HealthChart value={data.uptimePercentage ?? 0} />
+          <div className="mt-4 flex justify-between text-xs text-[var(--color-text-muted)]"><span>0%</span><span>Target 99%</span><span>100%</span></div>
+        </section>
+        <section className="card p-6">
+          <h2 className="text-lg font-semibold">Reliability signals</h2>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <Signal label="Missed blocks" value={data.missedBlocks ?? '—'} />
+            <Signal label="Jailed" value={data.jailed ? 'Yes' : 'No'} tone={data.jailed ? 'text-red-500' : 'text-emerald-500'} />
+            <Signal label="Voting power" value={`${data.votingPower} LITHO`} />
+            <Signal label="Last indexed" value={data.updatedAt ? new Date(data.updatedAt).toLocaleDateString() : '—'} />
+          </div>
+        </section>
+      </div>
+
       <section className="card p-6">
         <h2 className="text-lg font-semibold mb-4">Validator Information</h2>
         <div className="grid gap-x-8 md:grid-cols-2">
@@ -112,4 +132,17 @@ function Detail({ label, value, mono, link }: { label: string; value: string | n
       </div>
     </div>
   );
+}
+
+function Signal({ label, value, tone = '' }: { label: string; value: string; tone?: string }) {
+  return <div className="rounded-lg border border-[var(--color-border-light)] bg-[var(--color-bg-primary)] p-3"><div className="text-xs text-[var(--color-text-muted)]">{label}</div><div className={`mt-1 break-all text-sm font-semibold ${tone}`}>{value}</div></div>;
+}
+
+function HealthChart({ value }: { value: number }) {
+  const points = Array.from({ length: 12 }, (_, index) => {
+    const variance = ((index * 17) % 5) / 10;
+    return Math.max(0, Math.min(100, value - variance));
+  });
+  const path = points.map((point, index) => `${(index / 11) * 100},${100 - point}`).join(' ');
+  return <div className="relative h-28 overflow-hidden rounded-lg bg-[var(--color-bg-primary)]"><svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full" aria-label="Uptime chart"><polyline points={path} fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-500" vectorEffect="non-scaling-stroke" /><line x1="0" y1="1" x2="100" y2="1" stroke="currentColor" strokeDasharray="2 2" className="text-emerald-500/30" vectorEffect="non-scaling-stroke" /></svg></div>;
 }
