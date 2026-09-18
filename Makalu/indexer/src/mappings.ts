@@ -1254,7 +1254,7 @@ async function upsertAccount(client: DbClient, address: string, height: number):
 async function refreshValidators(): Promise<void> {
   try {
     const r = await fetch(
-      `${LCD_URL}/cosmos/staking/v1beta1/validators?pagination.limit=100&status=BOND_STATUS_BONDED`,
+      `${LCD_URL}/cosmos/staking/v1beta1/validators?pagination.limit=200`,
       { signal: AbortSignal.timeout(15_000) }
     );
     if (!r.ok) { logger.warn({ status: r.status }, '[validators] LCD non-OK'); return; }
@@ -1310,7 +1310,7 @@ async function refreshValidators(): Promise<void> {
         ]
       );
     }
-    logger.info({ count: data.validators?.length ?? 0 }, '[validators] Refreshed bonded validators');
+    logger.info({ count: data.validators?.length ?? 0 }, '[validators] Refreshed validators');
   } catch (err) {
     logger.warn({ err: err instanceof Error ? err.message : String(err) }, '[validators] refresh failed');
   }
