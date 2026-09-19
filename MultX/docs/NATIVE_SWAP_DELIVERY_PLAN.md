@@ -1,5 +1,9 @@
 # MultX native swap delivery plan
 
+For current implementation and remaining work, see
+[NATIVE_SWAP_COMPLETION_CHECKLIST.md](NATIVE_SWAP_COMPLETION_CHECKLIST.md).
+The sequence below records the original plan; individual progress notes may lag.
+
 Status: client-confirmed product direction; implementation design and production
 deployment remain unapproved. Recorded 2026-09-12 from the client's conversation.
 
