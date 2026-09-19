@@ -25,8 +25,9 @@ describe('explorer network configuration', () => {
       bridgeEnabled: false,
       walletReady: true,
       logoPath: '/lithoscan-logo.png',
-      faviconPath: '/mainnet-favicon.svg',
-      faviconType: 'image/svg+xml',
+      logoDarkPath: '/lithoscan-logo-dark.png',
+      faviconPath: '/lithoscan-favicon.png',
+      faviconType: 'image/png',
       appleTouchIconPath: '/lithoscan-icon.png',
       walletIconPath: '/lithoscan-icon.png',
     });

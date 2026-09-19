@@ -19,8 +19,8 @@ export default function Document() {
             `,
           }}
         />
-        <link rel="icon" href={NETWORK.isMainnet ? '/lithoscan-icon.png' : NETWORK.faviconPath} type={NETWORK.isMainnet ? 'image/png' : NETWORK.faviconType} sizes="any" />
-        <link rel="shortcut icon" href={NETWORK.isMainnet ? '/lithoscan-icon.png' : NETWORK.faviconPath} type={NETWORK.isMainnet ? 'image/png' : NETWORK.faviconType} />
+        <link rel="icon" href={NETWORK.faviconPath} type={NETWORK.faviconType} sizes="any" />
+        <link rel="shortcut icon" href={NETWORK.faviconPath} type={NETWORK.faviconType} />
         <link rel="apple-touch-icon" href={NETWORK.appleTouchIconPath} />
       </Head>
       <body>

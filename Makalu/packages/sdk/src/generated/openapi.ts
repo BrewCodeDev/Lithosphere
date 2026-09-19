@@ -1475,7 +1475,13 @@ export type paths = {
         /** Active and inactive validator set. */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description Set to 1 to include signing-window uptime and missed-block metrics. */
+                    metrics?: "1";
+                    search?: string;
+                    sort?: "tokens" | "uptime" | "commission" | "missed";
+                    status?: "active" | "inactive";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1530,6 +1536,49 @@ export type paths = {
                     };
                 };
                 /** @description Validator not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/validators/{operatorAddress}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Redirect to the validator profile image associated with its Keybase identity. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    operatorAddress: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Validator profile image found. */
+                302: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validator has no resolvable profile image. */
                 404: {
                     headers: {
                         [name: string]: unknown;

@@ -594,20 +594,12 @@ function HeaderContent() {
         className="fixed z-[130] w-48 rounded-xl border border-white/10 bg-[var(--color-bg-secondary)] py-1 shadow-xl shadow-black/40"
         style={{ top: moreMenuPosition.top, right: moreMenuPosition.right }}
       >
-        {MORE_ITEMS.map((item) => (
-          <a
-            key={item.href}
-            href={item.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMoreOpen(false)}
-            className="flex items-center justify-between px-4 py-2.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)]"
-          >
-            {item.label}
-            <svg className="w-3 h-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
+        {MORE_ITEMS.map((item) => item.external ? (
+          <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => setMoreOpen(false)} className="flex items-center justify-between px-4 py-2.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)]">
+            {item.label}<svg className="h-3 w-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
           </a>
+        ) : (
+          <Link key={item.href} href={item.href} onClick={() => setMoreOpen(false)} className="flex items-center px-4 py-2.5 text-sm text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)]">{item.label}</Link>
         ))}
       </div>
     ) : null;
@@ -663,17 +655,10 @@ function HeaderContent() {
         <div className="border-t border-white/10 pt-4">
           <div className="px-4 pb-2 text-xs font-medium uppercase tracking-[0.18em] text-white/35">More</div>
           <div className="space-y-1">
-            {MORE_ITEMS.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMenuOpen(false)}
-                className="block rounded-xl px-4 py-3 text-base font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)]"
-              >
-                {item.label}
-              </a>
+            {MORE_ITEMS.map((item) => item.external ? (
+              <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)} className="block rounded-xl px-4 py-3 text-base font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)]">{item.label}</a>
+            ) : (
+              <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="block rounded-xl px-4 py-3 text-base font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)]">{item.label}</Link>
             ))}
           </div>
         </div>
