@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 import CopyButton from '@/components/CopyButton';
 import ErrorState from '@/components/ErrorState';
@@ -34,7 +35,7 @@ export default function ValidatorDetailPage() {
 
   return (
     <>
-      <Head><title>{data.moniker} | {EXPLORER_TITLE}</title></Head>
+      <Head><title>{`${data.moniker} | ${EXPLORER_TITLE}`}</title></Head>
       <div className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-6">
         <Link href="/" className="hover:text-litho-400">Home</Link><span>/</span>
         <Link href="/validators" className="hover:text-litho-400">Validators</Link><span>/</span>
@@ -43,7 +44,9 @@ export default function ValidatorDetailPage() {
 
       <section className="card p-6 mb-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div>
+          <div className="flex items-start gap-4">
+            <ValidatorAvatar name={data.moniker} src={data.profileImageUrl} />
+            <div>
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-2xl font-bold">{data.moniker}</h1>
               <span className={data.status === 'Bonded' && !data.jailed ? 'badge-success' : 'badge-warning'}>
@@ -54,10 +57,13 @@ export default function ValidatorDetailPage() {
               <code className="break-all">{data.address}</code>
               <CopyButton text={data.address} />
             </div>
+            {data.details && <p className="mt-3 max-w-2xl text-sm text-[var(--color-text-secondary)]">{data.details}</p>}
+            </div>
           </div>
           <div className="text-left md:text-right">
-            <div className="text-sm text-[var(--color-text-muted)]">Voting Power</div>
+            <div className="text-sm text-[var(--color-text-muted)]">Voting Power · Rank #{data.rank || '—'}</div>
             <div className="text-2xl font-bold">{data.votingPower} LITHO</div>
+            <div className="mt-1 text-xs text-[var(--color-text-muted)]">{data.votingPowerPercentage.toFixed(2)}% of active voting power</div>
           </div>
         </div>
       </section>
@@ -65,18 +71,18 @@ export default function ValidatorDetailPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <Stat label="Commission" value={data.commission} />
         <Stat label="Max Commission" value={data.commissionMaxRate} />
-        <Stat label="Self Delegation" value={`${formatTokens(data.minSelfDelegation)} LITHO`} />
+        <Stat label="Minimum Self Delegation" value={`${formatTokens(data.minSelfDelegation)} LITHO`} />
         <Stat label="Uptime" value={data.uptimePercentage == null ? '—' : `${data.uptimePercentage}%`} />
       </div>
 
       <div className="mb-6 grid gap-4 lg:grid-cols-2">
         <section className="card p-6">
           <div className="mb-4 flex items-center justify-between">
-            <div><h2 className="text-lg font-semibold">Uptime health</h2><p className="text-sm text-[var(--color-text-muted)]">Current indexed performance snapshot</p></div>
+            <div><h2 className="text-lg font-semibold">Signing health</h2><p className="text-sm text-[var(--color-text-muted)]">Current on-chain signing window</p></div>
             <div className="text-2xl font-bold text-emerald-500">{data.uptimePercentage == null ? '—' : `${data.uptimePercentage.toFixed(2)}%`}</div>
           </div>
-          <HealthChart value={data.uptimePercentage ?? 0} />
-          <div className="mt-4 flex justify-between text-xs text-[var(--color-text-muted)]"><span>0%</span><span>Target 99%</span><span>100%</span></div>
+          <HealthGauge value={data.uptimePercentage} />
+          <div className="mt-4 text-center text-xs text-[var(--color-text-muted)]">Calculated from the validator&apos;s real missed-block counter, not an estimated history.</div>
         </section>
         <section className="card p-6">
           <h2 className="text-lg font-semibold">Reliability signals</h2>
@@ -102,6 +108,7 @@ export default function ValidatorDetailPage() {
             <Detail label="Website" value={data.website} link />
           )}
           {data.identity && <Detail label="Identity" value={data.identity} />}
+          {data.securityContact && <Detail label="Security Contact" value={data.securityContact} />}
         </div>
         {data.details && (
           <div className="mt-4 pt-4 border-t border-[var(--color-border-light)]">
@@ -138,11 +145,14 @@ function Signal({ label, value, tone = '' }: { label: string; value: string; ton
   return <div className="rounded-lg border border-[var(--color-border-light)] bg-[var(--color-bg-primary)] p-3"><div className="text-xs text-[var(--color-text-muted)]">{label}</div><div className={`mt-1 break-all text-sm font-semibold ${tone}`}>{value}</div></div>;
 }
 
-function HealthChart({ value }: { value: number }) {
-  const points = Array.from({ length: 12 }, (_, index) => {
-    const variance = ((index * 17) % 5) / 10;
-    return Math.max(0, Math.min(100, value - variance));
-  });
-  const path = points.map((point, index) => `${(index / 11) * 100},${100 - point}`).join(' ');
-  return <div className="relative h-28 overflow-hidden rounded-lg bg-[var(--color-bg-primary)]"><svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full" aria-label="Uptime chart"><polyline points={path} fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-500" vectorEffect="non-scaling-stroke" /><line x1="0" y1="1" x2="100" y2="1" stroke="currentColor" strokeDasharray="2 2" className="text-emerald-500/30" vectorEffect="non-scaling-stroke" /></svg></div>;
+function HealthGauge({ value }: { value: number | null }) {
+  const shown = value ?? 0;
+  const color = shown >= 99 ? '#10b981' : shown >= 95 ? '#f59e0b' : '#ef4444';
+  return <div className="mx-auto relative h-40 w-40"><svg viewBox="0 0 120 120" className="-rotate-90"><circle cx="60" cy="60" r="50" fill="none" stroke="var(--color-bg-primary)" strokeWidth="12" /><circle cx="60" cy="60" r="50" fill="none" stroke={color} strokeWidth="12" strokeLinecap="round" pathLength="100" strokeDasharray={`${shown} 100`} /></svg><div className="absolute inset-0 grid place-items-center"><div className="text-center"><div className="text-2xl font-bold">{value == null ? '—' : `${value.toFixed(2)}%`}</div><div className="text-xs text-[var(--color-text-muted)]">uptime</div></div></div></div>;
+}
+
+function ValidatorAvatar({ name, src }: { name: string; src: string | null }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) return <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-gradient-to-br from-blue-500/30 to-cyan-400/10 text-lg font-bold text-blue-400">{(name || 'V').slice(0, 2).toUpperCase()}</div>;
+  return <img src={src} alt={`${name} validator profile`} className="h-16 w-16 shrink-0 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-primary)] object-cover" onError={() => setFailed(true)} />;
 }

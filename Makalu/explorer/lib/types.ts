@@ -281,6 +281,9 @@ export interface ApiValidatorDetail extends ApiValidator {
   uptimePercentage: number | null;
   missedBlocks: string | null;
   updatedAt: string | null;
+  rank: number;
+  votingPowerPercentage: number;
+  profileImageUrl: string | null;
 }
 
 export interface SearchResult {

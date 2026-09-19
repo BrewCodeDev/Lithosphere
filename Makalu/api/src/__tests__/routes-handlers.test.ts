@@ -166,6 +166,52 @@ describe('GET /api/validators', () => {
   });
 });
 
+describe('GET /api/validators/:operatorAddress', () => {
+  it('returns validator identity, signing metrics, rank, and voting-power share', async () => {
+    mockQuery.mockResolvedValueOnce([{
+      operator_address: 'lithovaloper1abc',
+      consensus_address: 'lithovalcons1abc',
+      moniker: 'Node-A',
+      identity: 'A1B2C3D4',
+      website: 'https://node.example',
+      security_contact: 'security@node.example',
+      details: 'Independent validator',
+      tokens: '250000000000000000000',
+      delegator_shares: '250000000000000000000',
+      min_self_delegation: '1000000000000000000',
+      commission_rate: '0.05',
+      commission_max_rate: '0.20',
+      commission_max_change: '0.01',
+      status: 3,
+      jailed: false,
+      uptime_percentage: 99.8,
+      missed_blocks_counter: 2,
+      rank: '2',
+      total_bonded_tokens: '1000000000000000000000',
+      updated_at: new Date('2026-09-19T10:00:00Z'),
+    }]);
+
+    const res = await request(makeApp()).get('/api/validators/lithovaloper1abc');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      address: 'lithovaloper1abc',
+      consensusAddress: 'lithovalcons1abc',
+      uptimePercentage: 99.8,
+      missedBlocks: '2',
+      rank: 2,
+      votingPowerPercentage: 25,
+      profileImageUrl: '/api/validators/lithovaloper1abc/avatar',
+    });
+  });
+
+  it('returns 404 for a validator without a resolvable avatar identity', async () => {
+    mockQuery.mockResolvedValueOnce([{ identity: null }]);
+    const res = await request(makeApp()).get('/api/validators/lithovaloper1abc/avatar');
+    expect(res.status).toBe(404);
+  });
+});
+
 describe('GET /api/faucet/info', () => {
   const originalFetch = globalThis.fetch;
 

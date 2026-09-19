@@ -538,6 +538,8 @@ interface ValidatorRow {
   uptime_percentage?: number | null;
   missed_blocks_counter?: number | string | null;
   updated_at?: Date | string | null;
+  rank?: string | number | null;
+  total_bonded_tokens?: string | null;
 }
 
 interface EvmTxRow {
@@ -2262,10 +2264,54 @@ export function explorerRouter(): Router {
 
   // ── Validators ──────────────────────────────────────────────────────────
 
+  r.get('/validators/:operatorAddress/avatar', async (req: Request, res: Response) => {
+    try {
+      const rows = await query<Pick<ValidatorRow, 'identity'>>(
+        'SELECT identity FROM validators WHERE operator_address = $1',
+        [req.params.operatorAddress]
+      );
+      const identity = rows[0]?.identity?.trim();
+      if (!identity || !/^[a-zA-Z0-9_-]{3,64}$/.test(identity)) {
+        res.status(404).end();
+        return;
+      }
+
+      const response = await fetch(
+        `https://keybase.io/_/api/1.0/user/lookup.json?key_fingerprint=${encodeURIComponent(identity)}`,
+        { signal: AbortSignal.timeout(5_000) }
+      );
+      if (!response.ok) {
+        res.status(404).end();
+        return;
+      }
+      const body = await response.json() as {
+        them?: Array<{ pictures?: { primary?: { url?: string } } }>;
+      };
+      const picture = body.them?.[0]?.pictures?.primary?.url;
+      if (!picture) {
+        res.status(404).end();
+        return;
+      }
+      const pictureUrl = new URL(picture);
+      if (pictureUrl.protocol !== 'https:') {
+        res.status(404).end();
+        return;
+      }
+      res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+      res.redirect(302, pictureUrl.toString());
+    } catch {
+      res.status(404).end();
+    }
+  });
+
   r.get('/validators/:operatorAddress', async (req: Request, res: Response) => {
     try {
       const rows = await query<ValidatorRow>(
-        'SELECT * FROM validators WHERE operator_address = $1',
+        `SELECT v.*,
+                (SELECT COUNT(*) + 1 FROM validators ranked WHERE ranked.tokens::numeric > v.tokens::numeric) AS rank,
+                (SELECT COALESCE(SUM(tokens::numeric), 0) FROM validators WHERE status = 3 AND jailed = FALSE)::text AS total_bonded_tokens
+           FROM validators v
+          WHERE v.operator_address = $1`,
         [req.params.operatorAddress]
       );
       const validator = rows[0];
@@ -2293,6 +2339,13 @@ export function explorerRouter(): Router {
         updatedAt: validator.updated_at instanceof Date
           ? validator.updated_at.toISOString()
           : validator.updated_at ?? null,
+        rank: Number(validator.rank ?? 0),
+        votingPowerPercentage: Number(validator.total_bonded_tokens ?? 0) > 0
+          ? Number(((Number(validator.tokens) / Number(validator.total_bonded_tokens)) * 100).toFixed(2))
+          : 0,
+        profileImageUrl: validator.identity
+          ? `/api/validators/${encodeURIComponent(validator.operator_address)}/avatar`
+          : null,
       });
     } catch (err) {
       logger.error({ err: err instanceof Error ? err.message : String(err) }, '[api] /validators/:operatorAddress error');
