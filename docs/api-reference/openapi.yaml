@@ -316,12 +316,55 @@ paths:
     get:
       tags: [Validators]
       summary: Active and inactive validator set.
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string, maxLength: 100 }
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, inactive] }
+        - name: sort
+          in: query
+          schema: { type: string, enum: [tokens, uptime, commission, missed] }
+        - name: metrics
+          in: query
+          description: Set to 1 to include signing-window uptime and missed-block metrics.
+          schema: { type: string, enum: ['1'] }
       responses:
         '200':
           description: Validator metadata array.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/JsonObject' }
+  /validators/{operatorAddress}:
+    get:
+      tags: [Validators]
+      summary: Validator metadata and staking details for an operator address.
+      parameters:
+        - name: operatorAddress
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Validator detail.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JsonObject' }
+        '404':
+          description: Validator not found.
+  /validators/{operatorAddress}/avatar:
+    get:
+      tags: [Validators]
+      summary: Redirect to the validator profile image associated with its Keybase identity.
+      parameters:
+        - name: operatorAddress
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '302': { description: Validator profile image found. }
+        '404': { description: Validator has no resolvable profile image. }
 
   # ───── Stats / Meta ──────────────────────────────────────────────────────
   /stats/summary:
@@ -395,38 +438,34 @@ paths:
         '400': { description: Validation error (bad address, missing captcha). }
         '429': { description: Cooldown active for this address / IP. }
 
-  # ───── MultX Bridge (same-origin proxy to bridge.litho.ai) ────
+  # ───── Quantt research (server-side credential proxy) ─────
   /quantt/status:
     get:
       tags: [Quantt]
-      summary: Report whether the server-side Quantt integration is configured.
+      summary: Report whether the Quantt adapter has approved server configuration.
       responses:
         '200':
-          description: Quantt configuration status and public resource URLs.
+          description: Configuration status and public portal links; never includes credentials.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/JsonObject' }
   /quantt/insights:
     get:
       tags: [Quantt]
-      summary: Fetch server-proxied Quantt research insights for an asset symbol.
+      summary: Fetch a Quantt research insight through the server-side adapter.
       parameters:
         - name: symbol
           in: query
           required: true
-          schema:
-            type: string
-            minLength: 2
-            maxLength: 20
-            pattern: '^[a-zA-Z0-9._-]+$'
+          schema: { type: string, minLength: 2, maxLength: 20, pattern: '^[A-Za-z0-9._-]+$' }
       responses:
         '200':
-          description: Quantt research payload.
+          description: Provider response wrapped with provider and normalized symbol metadata.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/JsonObject' }
         '400': { description: Invalid asset symbol. }
-        '503': { description: Quantt integration is not configured. }
+        '503': { description: Quantt is not configured. }
 
   /bridge/config:
     get:

@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS validators (
     jailed BOOLEAN DEFAULT FALSE,
     unbonding_height BIGINT,
     unbonding_time TIMESTAMP WITH TIME ZONE,
-    uptime_percentage DECIMAL(5,2) DEFAULT 100.00,
+    uptime_percentage DECIMAL(5,2),
     missed_blocks_counter BIGINT DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

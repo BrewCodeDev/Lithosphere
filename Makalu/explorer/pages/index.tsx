@@ -439,14 +439,12 @@ function HomeContent({ initialStats, initialValidators }: HomeProps) {
                   <div className="text-sm text-white/55">Consensus Layer</div>
                   <h2 className="mt-1 text-2xl font-semibold">Top Validators</h2>
                 </div>
-                <a
-                  href="https://validator.litho.ai"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/validators"
                   className="shrink-0 whitespace-nowrap rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white/80 hover:bg-black/50 transition sm:px-4"
                 >
                   All validators
-                </a>
+                </Link>
               </div>
 
               <div className="space-y-3">
@@ -598,14 +596,12 @@ function HomeContent({ initialStats, initialValidators }: HomeProps) {
                   className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white hover:bg-white/10 transition"
                 >
                   Get Testnet LITHO
-                </Link> : <a
-                  href="https://validator.litho.ai"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                </Link> : <Link
+                  href="/validators"
                   className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white hover:bg-white/10 transition"
                 >
                   View Validators
-                </a>}
+                </Link>}
               </div>
             </div>
           </section>

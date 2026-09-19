@@ -259,6 +259,31 @@ export interface ApiValidator {
   votingPower: string;
   commission: string;
   status: string;
+  tokens?: string;
+  uptimePercentage?: number | null;
+  missedBlocks?: string | null;
+  jailed?: boolean;
+  updatedAt?: string | null;
+}
+
+export interface ApiValidatorDetail extends ApiValidator {
+  consensusAddress: string | null;
+  identity: string | null;
+  website: string | null;
+  securityContact: string | null;
+  details: string | null;
+  tokens: string;
+  delegatorShares: string;
+  minSelfDelegation: string;
+  commissionMaxRate: string;
+  commissionMaxChange: string;
+  jailed: boolean;
+  uptimePercentage: number | null;
+  missedBlocks: string | null;
+  updatedAt: string | null;
+  rank: number;
+  votingPowerPercentage: number;
+  profileImageUrl: string | null;
 }
 
 export interface SearchResult {

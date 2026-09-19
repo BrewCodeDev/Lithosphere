@@ -14,6 +14,12 @@ import {
   resolveSeededTokens,
   resolveStaleTokenAddresses,
 } from './token-registry.js';
+import {
+  consensusAddressFromPublicKey,
+  signingInfoByAddress,
+  signingUptime,
+  type SigningInfo,
+} from './validators.js';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -1253,13 +1259,23 @@ async function upsertAccount(client: DbClient, address: string, height: number):
 
 async function refreshValidators(): Promise<void> {
   try {
-    const r = await fetch(
-      `${LCD_URL}/cosmos/staking/v1beta1/validators?pagination.limit=100&status=BOND_STATUS_BONDED`,
-      { signal: AbortSignal.timeout(15_000) }
-    );
-    if (!r.ok) { logger.warn({ status: r.status }, '[validators] LCD non-OK'); return; }
+    const [validatorResponse, signingResponse, slashingParamsResponse] = await Promise.all([
+      fetch(`${LCD_URL}/cosmos/staking/v1beta1/validators?pagination.limit=200`, {
+        signal: AbortSignal.timeout(15_000),
+      }),
+      fetch(`${LCD_URL}/cosmos/slashing/v1beta1/signing_infos?pagination.limit=200`, {
+        signal: AbortSignal.timeout(15_000),
+      }).catch(() => null),
+      fetch(`${LCD_URL}/cosmos/slashing/v1beta1/params`, {
+        signal: AbortSignal.timeout(15_000),
+      }).catch(() => null),
+    ]);
+    if (!validatorResponse.ok) {
+      logger.warn({ status: validatorResponse.status }, '[validators] LCD non-OK');
+      return;
+    }
 
-    const data = await r.json() as {
+    const data = await validatorResponse.json() as {
       validators?: Array<{
         operator_address: string;
         consensus_pubkey: unknown;
@@ -1272,6 +1288,14 @@ async function refreshValidators(): Promise<void> {
         jailed: boolean;
       }>;
     };
+    const signingData = signingResponse?.ok
+      ? await signingResponse.json() as { info?: SigningInfo[] }
+      : { info: [] };
+    const slashingParams = slashingParamsResponse?.ok
+      ? await slashingParamsResponse.json() as { params?: { signed_blocks_window?: string } }
+      : {};
+    const signingWindow = slashingParams.params?.signed_blocks_window;
+    const signingByAddress = signingInfoByAddress(signingData.info ?? []);
 
     const statusCode: Record<string, number> = {
       BOND_STATUS_BONDED: 3,
@@ -1282,23 +1306,42 @@ async function refreshValidators(): Promise<void> {
     for (const v of data.validators ?? []) {
       const d = v.description ?? {};
       const c = v.commission?.commission_rates ?? {};
+      const consensusAddress = consensusAddressFromPublicKey(v.consensus_pubkey);
+      const signingInfo = consensusAddress
+        ? signingByAddress.get(consensusAddress.toLowerCase())
+        : undefined;
+      const uptime = signingInfo
+        ? signingUptime(signingInfo.missed_blocks_counter, signingWindow, signingInfo.index_offset)
+        : null;
       await pool.query(
         `INSERT INTO validators
-           (operator_address, consensus_pubkey, moniker, identity, website,
+           (operator_address, consensus_address, consensus_pubkey, moniker, identity, website,
             security_contact, details, commission_rate, commission_max_rate,
             commission_max_change, min_self_delegation, tokens, delegator_shares,
-            status, jailed, updated_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,NOW())
+            status, jailed, uptime_percentage, missed_blocks_counter, updated_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,NOW())
          ON CONFLICT (operator_address) DO UPDATE SET
+           consensus_address = COALESCE(EXCLUDED.consensus_address, validators.consensus_address),
+           consensus_pubkey   = EXCLUDED.consensus_pubkey,
            tokens            = EXCLUDED.tokens,
            delegator_shares  = EXCLUDED.delegator_shares,
            status            = EXCLUDED.status,
            jailed            = EXCLUDED.jailed,
            moniker           = EXCLUDED.moniker,
+           identity          = EXCLUDED.identity,
+           website           = EXCLUDED.website,
+           security_contact  = EXCLUDED.security_contact,
+           details           = EXCLUDED.details,
            commission_rate   = EXCLUDED.commission_rate,
+           commission_max_rate = EXCLUDED.commission_max_rate,
+           commission_max_change = EXCLUDED.commission_max_change,
+           min_self_delegation = EXCLUDED.min_self_delegation,
+           uptime_percentage = COALESCE(EXCLUDED.uptime_percentage, validators.uptime_percentage),
+           missed_blocks_counter = COALESCE(EXCLUDED.missed_blocks_counter, validators.missed_blocks_counter),
            updated_at        = NOW()`,
         [
           v.operator_address,
+          consensusAddress,
           JSON.stringify(v.consensus_pubkey),
           d.moniker ?? '', d.identity ?? '', d.website ?? '',
           d.security_contact ?? '', d.details ?? '',
@@ -1307,10 +1350,12 @@ async function refreshValidators(): Promise<void> {
           v.tokens ?? '0', v.delegator_shares ?? '0',
           statusCode[v.status] ?? 1,
           v.jailed ?? false,
+          uptime,
+          signingInfo?.missed_blocks_counter ?? null,
         ]
       );
     }
-    logger.info({ count: data.validators?.length ?? 0 }, '[validators] Refreshed bonded validators');
+    logger.info({ count: data.validators?.length ?? 0 }, '[validators] Refreshed validators');
   } catch (err) {
     logger.warn({ err: err instanceof Error ? err.message : String(err) }, '[validators] refresh failed');
   }

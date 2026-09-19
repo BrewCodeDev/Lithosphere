@@ -521,11 +521,25 @@ interface AccountRow {
 
 interface ValidatorRow {
   operator_address: string;
+  consensus_address?: string | null;
+  identity?: string | null;
+  website?: string | null;
+  security_contact?: string | null;
+  details?: string | null;
   moniker: string | null;
   tokens: string;
+  delegator_shares?: string | null;
   commission_rate: string | null;
+  commission_max_rate?: string | null;
+  commission_max_change?: string | null;
+  min_self_delegation?: string | null;
   status: number;
   jailed: boolean;
+  uptime_percentage?: number | null;
+  missed_blocks_counter?: number | string | null;
+  updated_at?: Date | string | null;
+  rank?: string | number | null;
+  total_bonded_tokens?: string | null;
 }
 
 interface EvmTxRow {
@@ -1460,7 +1474,16 @@ function mapAddress(
 
 const STATUS_LABELS: Record<number, string> = { 1: 'Unbonded', 2: 'Unbonding', 3: 'Bonded' };
 
-function mapValidator(r: ValidatorRow) {
+function formatCommission(value: string | null | undefined) {
+  try {
+    const rate = parseFloat(value ?? '0');
+    return (rate * 100).toFixed(2).replace(/\.?0+$/, '') + '%';
+  } catch {
+    return '0%';
+  }
+}
+
+function mapValidator(r: ValidatorRow, includeMetrics = false) {
   // votingPower is in ulitho (18 decimals) — convert to whole LITHO with commas
   let votingPower = '0';
   try {
@@ -1470,18 +1493,23 @@ function mapValidator(r: ValidatorRow) {
   } catch { /* keep 0 */ }
 
   // commission_rate is a Cosmos decimal string like "0.100000000000000000" → "10%"
-  let commission = '0%';
-  try {
-    const rate = parseFloat(r.commission_rate ?? '0');
-    commission = (rate * 100).toFixed(2).replace(/\.?0+$/, '') + '%';
-  } catch { /* keep 0% */ }
+  const commission = formatCommission(r.commission_rate);
 
-  return {
+  const result = {
     address: r.operator_address,
     moniker: r.moniker ?? r.operator_address.slice(0, 16) + '...',
     votingPower,
     commission,
     status: STATUS_LABELS[r.status] ?? 'Unknown',
+  };
+  if (!includeMetrics) return result;
+  return {
+    ...result,
+    tokens: r.tokens ?? '0',
+    uptimePercentage: r.uptime_percentage ?? null,
+    missedBlocks: r.missed_blocks_counter != null ? String(r.missed_blocks_counter) : null,
+    jailed: Boolean(r.jailed),
+    updatedAt: r.updated_at instanceof Date ? r.updated_at.toISOString() : r.updated_at ?? null,
   };
 }
 
@@ -2236,12 +2264,121 @@ export function explorerRouter(): Router {
 
   // ── Validators ──────────────────────────────────────────────────────────
 
-  r.get('/validators', async (_req: Request, res: Response) => {
+  r.get('/validators/:operatorAddress/avatar', async (req: Request, res: Response) => {
+    try {
+      const rows = await query<Pick<ValidatorRow, 'identity'>>(
+        'SELECT identity FROM validators WHERE operator_address = $1',
+        [req.params.operatorAddress]
+      );
+      const identity = rows[0]?.identity?.trim();
+      if (!identity || !/^[a-zA-Z0-9_-]{3,64}$/.test(identity)) {
+        res.status(404).end();
+        return;
+      }
+
+      const response = await fetch(
+        `https://keybase.io/_/api/1.0/user/lookup.json?key_fingerprint=${encodeURIComponent(identity)}`,
+        { signal: AbortSignal.timeout(5_000) }
+      );
+      if (!response.ok) {
+        res.status(404).end();
+        return;
+      }
+      const body = await response.json() as {
+        them?: Array<{ pictures?: { primary?: { url?: string } } }>;
+      };
+      const picture = body.them?.[0]?.pictures?.primary?.url;
+      if (!picture) {
+        res.status(404).end();
+        return;
+      }
+      const pictureUrl = new URL(picture);
+      if (pictureUrl.protocol !== 'https:') {
+        res.status(404).end();
+        return;
+      }
+      res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+      res.redirect(302, pictureUrl.toString());
+    } catch {
+      res.status(404).end();
+    }
+  });
+
+  r.get('/validators/:operatorAddress', async (req: Request, res: Response) => {
     try {
       const rows = await query<ValidatorRow>(
-        'SELECT * FROM validators ORDER BY tokens DESC LIMIT 100'
+        `SELECT v.*,
+                (SELECT COUNT(*) + 1 FROM validators ranked WHERE ranked.tokens::numeric > v.tokens::numeric) AS rank,
+                (SELECT COALESCE(SUM(tokens::numeric), 0) FROM validators WHERE status = 3 AND jailed = FALSE)::text AS total_bonded_tokens
+           FROM validators v
+          WHERE v.operator_address = $1`,
+        [req.params.operatorAddress]
       );
-      res.json(rows.map(mapValidator));
+      const validator = rows[0];
+      if (!validator) {
+        res.status(404).json({ message: 'Validator not found' });
+        return;
+      }
+      res.json({
+        ...mapValidator(validator),
+        consensusAddress: validator.consensus_address ?? null,
+        identity: validator.identity ?? null,
+        website: validator.website ?? null,
+        securityContact: validator.security_contact ?? null,
+        details: validator.details ?? null,
+        tokens: validator.tokens ?? '0',
+        delegatorShares: validator.delegator_shares ?? '0',
+        minSelfDelegation: validator.min_self_delegation ?? '0',
+        commissionMaxRate: formatCommission(validator.commission_max_rate),
+        commissionMaxChange: formatCommission(validator.commission_max_change),
+        jailed: Boolean(validator.jailed),
+        uptimePercentage: validator.uptime_percentage ?? null,
+        missedBlocks: validator.missed_blocks_counter != null
+          ? String(validator.missed_blocks_counter)
+          : null,
+        updatedAt: validator.updated_at instanceof Date
+          ? validator.updated_at.toISOString()
+          : validator.updated_at ?? null,
+        rank: Number(validator.rank ?? 0),
+        votingPowerPercentage: Number(validator.total_bonded_tokens ?? 0) > 0
+          ? Number(((Number(validator.tokens) / Number(validator.total_bonded_tokens)) * 100).toFixed(2))
+          : 0,
+        profileImageUrl: validator.identity
+          ? `/api/validators/${encodeURIComponent(validator.operator_address)}/avatar`
+          : null,
+      });
+    } catch (err) {
+      logger.error({ err: err instanceof Error ? err.message : String(err) }, '[api] /validators/:operatorAddress error');
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  r.get('/validators', async (req: Request, res: Response) => {
+    try {
+      const search = typeof req.query.search === 'string' ? req.query.search.trim().slice(0, 100) : '';
+      const sector = typeof req.query.sector === 'string' ? req.query.sector : '';
+      const sort = typeof req.query.sort === 'string' ? req.query.sort : 'tokens';
+      const orderBy = sector === 'uptime' || sort === 'uptime'
+        ? 'uptime_percentage DESC NULLS LAST, tokens DESC'
+        : sort === 'commission'
+          ? 'commission_rate ASC NULLS LAST, tokens DESC'
+          : sort === 'missed'
+            ? 'missed_blocks_counter ASC NULLS LAST, tokens DESC'
+            : 'tokens DESC';
+      const where: string[] = [];
+      const params: string[] = [];
+      if (search) {
+        params.push(`%${search}%`);
+        where.push(`(moniker ILIKE $${params.length} OR operator_address ILIKE $${params.length})`);
+      }
+      if (req.query.status === 'active') where.push('status = 3 AND jailed = FALSE');
+      if (req.query.status === 'inactive') where.push('(status <> 3 OR jailed = TRUE)');
+      const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
+      const rows = await query<ValidatorRow>(
+        `SELECT * FROM validators ${whereSql} ORDER BY ${orderBy} LIMIT 100`,
+        params
+      );
+      res.json(rows.map((row) => mapValidator(row, req.query.metrics === '1')));
     } catch (err) {
       logger.error({ err: err instanceof Error ? err.message : String(err) }, '[api] /validators error');
       res.status(500).json({ error: 'Internal server error' });

@@ -1015,7 +1015,7 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** Fetch server-proxied Quantt research insights for an asset symbol. */
+        /** Fetch a Quantt research insight through the server-side adapter. */
         get: {
             parameters: {
                 query: {
@@ -1027,7 +1027,7 @@ export type paths = {
             };
             requestBody?: never;
             responses: {
-                /** @description Quantt research payload. */
+                /** @description Provider response wrapped with provider and normalized symbol metadata. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1043,7 +1043,7 @@ export type paths = {
                     };
                     content?: never;
                 };
-                /** @description Quantt integration is not configured. */
+                /** @description Quantt is not configured. */
                 503: {
                     headers: {
                         [name: string]: unknown;
@@ -1067,7 +1067,7 @@ export type paths = {
             path?: never;
             cookie?: never;
         };
-        /** Report whether the server-side Quantt integration is configured. */
+        /** Report whether the Quantt adapter has approved server configuration. */
         get: {
             parameters: {
                 query?: never;
@@ -1077,7 +1077,7 @@ export type paths = {
             };
             requestBody?: never;
             responses: {
-                /** @description Quantt configuration status and public resource URLs. */
+                /** @description Configuration status and public portal links; never includes credentials. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1475,7 +1475,13 @@ export type paths = {
         /** Active and inactive validator set. */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description Set to 1 to include signing-window uptime and missed-block metrics. */
+                    metrics?: "1";
+                    search?: string;
+                    sort?: "tokens" | "uptime" | "commission" | "missed";
+                    status?: "active" | "inactive";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1490,6 +1496,94 @@ export type paths = {
                     content: {
                         "application/json": components["schemas"]["JsonObject"];
                     };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/validators/{operatorAddress}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Validator metadata and staking details for an operator address. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    operatorAddress: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Validator detail. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JsonObject"];
+                    };
+                };
+                /** @description Validator not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/validators/{operatorAddress}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Redirect to the validator profile image associated with its Keybase identity. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    operatorAddress: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Validator profile image found. */
+                302: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validator has no resolvable profile image. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
             };
         };
