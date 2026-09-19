@@ -147,9 +147,10 @@ test('two local chains: lock, 3-of-5 release, DEX, native redemption and payout'
   assert.equal((await reconcileNativeDexBatch(pool,new Map([[9005,dest]]))).results[0].state,'dex_verified');
   assert.deepEqual((await reconcileNativeDexBatch(pool,new Map([[9005,dest]]))).results,[]);
   const dexProof=await verifyNativeDexExecution(pool,dest,'cross');
+  const dexCredited=await dexToken.balanceOf(destWallet.address)-dexBefore;
   assert.equal(dexProof.evidence.transactionHash,dexBinding.transactionHash);
-  assert.equal(dexProof.evidence.amount,'2500');
-  assert.ok(await dexToken.balanceOf(destWallet.address)-dexBefore>=2500n);
+  assert.equal(dexProof.evidence.amount,dexCredited.toString());
+  assert.ok(dexCredited>=2500n);
   assert.equal((await verifyNativeDexExecution(pool,dest,'cross')).alreadyRecorded,true);
   await assert.rejects(prepareNativePayout(pool,dest,'cross'),/native redemption required/);
   const redemptionPlan=await prepareNativeRedemption(pool,dest,'cross');
