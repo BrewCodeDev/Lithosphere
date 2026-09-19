@@ -129,7 +129,10 @@ test('two local chains: lock, 3-of-5 release, DEX, native redemption and payout'
   const dexPlan=await prepareNativeDexExecution(pool,dest,'cross');
   if(dexPlan.approval)await(await destSigner.sendTransaction(dexPlan.approval)).wait();
   const dexTransaction=await destWallet.populateTransaction(dexPlan.transaction);
-  dexTransaction.gasLimit=(dexTransaction.gasLimit*120n+99n)/100n;
+  // This fixture exercises immutable binding and lost-broadcast recovery. Sign
+  // at the approved policy ceiling so a later safety re-estimate cannot make
+  // the test nondeterministically under-gassed.
+  dexTransaction.gasLimit=BigInt(policy.destinationDex.maxGas);
   const dexRaw=await destWallet.signTransaction(dexTransaction);
   const dexBinding=await bindSignedNativeDexExecution(pool,'cross',dexRaw);
   assert.equal((await bindSignedNativeDexExecution(pool,'cross',dexRaw)).alreadyBound,true);
