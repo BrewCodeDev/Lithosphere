@@ -2,7 +2,7 @@
 
 - **Workstream:** MX-05
 - **Environment:** Makalu explorer and API
-- **Status:** Assumption-free gates deployed and fail-closed; Quantt owner inputs and TLS repair required
+- **Status:** Approved hostname confirmed; API contract and credentials still required
 - **Last verified:** 2026-09-20
 
 This is the activation and acceptance record for the Quantt explorer integration. Similar-looking domains, guessed
@@ -14,17 +14,15 @@ paths, inferred authentication, and inferred response fields are not acceptable 
 | --- | --- | --- |
 | Makalu status | PASS (disabled) | `https://makalu.litho.ai/api/quantt/status` returns HTTP 200 with `configured: false` and `apiOrigin: null`. |
 | Research portal | PASS | `https://research.quantt.at/` returns HTTP 200 with title `Quantt Agents Research`. |
-| Requested developer portal | FAIL | A standards-valid HTTPS request to `https://dev.quantt.at/` fails hostname verification. |
-| Developer DNS | OBSERVED | `dev.quantt.at` resolves externally at verification time; the raw address is retained only in the protected evidence record. |
-| Presented certificate | WRONG HOST | Certificate subject is `CN=dev.quantts.ai`; SANs cover `api.quantts.ai`, `dev.quantts.ai`, `engine.quantts.ai`, and `enterprise.quantts.ai`, but not `dev.quantt.at`. |
+| Approved hostname boundary | CONFIRMED | The owner confirmed `quantts.ai` on 2026-09-20. API configuration accepts only that host and its subdomains. |
+| Developer portal | PASS | `https://dev.quantts.ai/` returns HTTP 200 with valid hostname verification. |
+| Apex site | PASS | `https://quantts.ai/` returns HTTP 200 with valid hostname verification. |
+| API hostname | NOT YET APPROVED AS AN ENDPOINT | `https://api.quantts.ai/` completes TLS but returned HTTP 502 at its root; no API path or contract is inferred from that observation. |
 
 The public state was repeated on 2026-09-20: `/quantt` returned HTTP 200, status remained `configured: false` with
-`apiOrigin: null`, insights failed closed with HTTP 503, the research portal returned HTTP 200, and a
-standards-valid request to `dev.quantt.at` still failed TLS hostname verification.
-
-The similarly named `https://dev.quantts.ai/` currently returns HTTP 200 and `https://api.quantts.ai/` returns HTTP
-404 at its root. They are observations only. Neither domain is approved as the Lithosphere integration API, and the
-explorer must not switch to them without Quantt-owner confirmation.
+`apiOrigin: null`, insights failed closed with HTTP 503, and the research portal returned HTTP 200. The owner then
+confirmed `quantts.ai` as the correct hostname boundary. This resolves the spelling/TLS ambiguity but does not
+identify the production API origin, request path, authentication scheme, or response contract.
 
 ## Repository integration boundary
 
@@ -45,9 +43,9 @@ server-side and sanitized errors do not return it to clients.
 
 ## Inputs still required from Quantt
 
-- [ ] Confirm the canonical production and development hostnames; explicitly state whether any `quantts.ai` host is
-      intended to replace the requested `quantt.at` host.
-- [ ] Repair the `dev.quantt.at` DNS/certificate binding or retire that URL in writing.
+- [x] Confirm the canonical hostname boundary: `quantts.ai` (owner confirmation, 2026-09-20).
+- [x] Confirm a TLS-valid developer portal: `https://dev.quantts.ai/` (HTTP 200, 2026-09-20).
+- [ ] Identify the exact production and development API base URLs beneath the approved hostname boundary.
 - [ ] Provide the exact base URL, HTTP method, insights path, authentication scheme, and credential through the
       approved secret manager.
 - [ ] Provide the versioned request/response schema, required headers, supported symbols, score units/range,

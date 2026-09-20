@@ -53,7 +53,7 @@ export default function QuanttPage() {
 
           <div className="mt-5 flex flex-wrap gap-3 text-sm">
             <a className="text-sky-300 hover:text-sky-200" href={status?.researchUrl ?? 'https://research.quantt.at/'} target="_blank" rel="noreferrer">Research portal ↗</a>
-            <a className="text-sky-300 hover:text-sky-200" href={status?.developerUrl ?? 'https://dev.quantt.at/'} target="_blank" rel="noreferrer">Developer portal ↗</a>
+            <a className="text-sky-300 hover:text-sky-200" href={status?.developerUrl ?? 'https://dev.quantts.ai/'} target="_blank" rel="noreferrer">Developer portal ↗</a>
           </div>
 
           {statusLoading && <p className="mt-8 text-sm text-slate-400">Checking integration status…</p>}

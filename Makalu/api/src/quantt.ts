@@ -1,5 +1,5 @@
 export const QUANTT_RESEARCH_URL = 'https://research.quantt.at/';
-export const QUANTT_DEVELOPER_URL = 'https://dev.quantt.at/';
+export const QUANTT_DEVELOPER_URL = 'https://dev.quantts.ai/';
 
 export type QuanttAuthHeader = 'Authorization' | 'X-API-Key';
 
@@ -13,7 +13,7 @@ export interface QuanttConfig {
 
 function isQuanttHostname(hostname: string): boolean {
   const normalized = hostname.toLowerCase();
-  return normalized === 'quantt.at' || normalized.endsWith('.quantt.at');
+  return normalized === 'quantts.ai' || normalized.endsWith('.quantts.ai');
 }
 
 export function loadQuanttConfig(env: NodeJS.ProcessEnv = process.env): QuanttConfig | null {
