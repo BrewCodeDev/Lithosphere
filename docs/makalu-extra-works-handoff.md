@@ -117,7 +117,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | MX-02 | LEP100 faucet assets | Current faucet accepted by client; remaining rotation/funding closure postponed | DEFERRED | Take no faucet deployment or funding action until the client reprioritizes it. |
 | MX-03 | Thanos Wallet | Repository work merged and deployed; acceptance open | EXTERNAL BLOCKER | Wallet team completes the published-version browser matrix, signed transaction, and approval record. |
 | MX-04 | DNNS | Verified explorer hardening merged and deployed; owner acceptance open | EXTERNAL BLOCKER | DNNS owner confirms the supported interface, fixes public docs, nominates a reverse record, and accepts cache policy. |
-| MX-05 | Quantt | Approved `quantts.ai` boundary wired locally; adapter remains disabled | IN PROGRESS | Merge/deploy the hostname correction, then obtain the exact API contract, credential, and product acceptance. |
+| MX-05 | Quantt | Approved `quantts.ai` boundary merged and deployed; adapter remains disabled | EXTERNAL BLOCKER | Obtain the exact API contract, credential, and product acceptance. |
 | MX-01 | MultX / Lithoswap | Accepted v0.9.2 image is published; native-settlement PR #188 is draft with open security/evidence findings; O-01/package O-02 and production inputs remain open; MultX disabled | IN PROGRESS | Correct and independently review PR #188, attach exact full-rehearsal evidence, then approve private route/infrastructure inputs before any disabled-staging run. |
 | MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; four tools remain specification-only and there is no deployable compiler/public release | IN PROGRESS | Obtain approved language/VM semantics and product/release/security acceptance before compiler or public-release work. |
 
@@ -130,7 +130,7 @@ to the next executable stream without pretending the blocked stream is complete.
 2. [x] **MX-06 Validator cleanup and safety** — complete; the missing historical PR #17 window artifact is preserved and accepted through private PR #23 rather than reconstructed.
 3. [ ] **MX-03 Thanos Wallet** — deployed; waiting on wallet-team acceptance.
 4. [ ] **MX-04 DNNS** — deployed; waiting on DNNS-owner acceptance inputs.
-5. [ ] **MX-05 Quantt** — approved hostname confirmed; correction pending merge/deployment, then API contract/credential/product acceptance.
+5. [ ] **MX-05 Quantt** — hostname correction deployed; waiting on the exact API contract, credential, and product acceptance.
 6. [ ] **MX-07 Developer toolchain** — separate major compiler/release program.
 7. [ ] **MX-02 LEP100 faucet assets** — deferred by the client on 2026-08-23; retain safeguards and make no changes.
 
@@ -613,8 +613,10 @@ are deployed. The live status endpoint reports `configured: false`. The research
 HTTPS hostname validation. Repository hardening removed guessed auth/path defaults and added the previously missing
 acceptance runbook. The adapter
 must remain fail-closed until the exact owner-approved contract and secret-manager credential are available. PR #88
-merged and protected run `31828985116` deployed the assumption-free gates as release
-`c01ec48472544270ec0716483e5a07bba947b079`; all executable work is now externally blocked.
+and protected run `31828985116` deployed the assumption-free gates as release
+`c01ec48472544270ec0716483e5a07bba947b079`. PR #194 then merged the approved hostname correction and protected run
+`35519157421` deployed release `bd21503968e85b949bfd26c7cb7023a1815c66e0`; all currently executable work is now
+externally blocked.
 
 Completed or evidenced:
 
@@ -630,6 +632,11 @@ Completed or evidenced:
 - [x] Five focused Quantt tests, all 164 API tests, and the strict TypeScript build pass locally (2026-08-14).
 - [x] PR #88 passed all checks and merged as `c01ec48472544270ec0716483e5a07bba947b079` (2026-08-14).
 - [x] Protected deployment run `31828985116` passed image, deploy, and public health gates (2026-08-14).
+- [x] PR #194 passed all checks with a verified `bachal-mb` signature and merged as
+      `bd21503968e85b949bfd26c7cb7023a1815c66e0` (2026-09-20).
+- [x] Protected deployment run `35519157421` deployed that exact release and passed its public health gate.
+- [x] Live post-deployment checks show the corrected `https://dev.quantts.ai/` link while status remains safely
+      unconfigured with null origin and insights remain fail-closed with HTTP 503.
 - [x] Public release SHA, disabled status, null API origin, page HTTP 200, and insights HTTP 503 were reverified after
       deployment.
 
@@ -667,6 +674,8 @@ Evidence:
 - Public sites: `https://research.quantt.at/`, `https://dev.quantts.ai/`
 - Review PR: `https://github.com/KaJLabs/Lithosphere/pull/88`
 - Deployment run: `https://github.com/KaJLabs/Lithosphere/actions/runs/31828985116`
+- Hostname correction PR: `https://github.com/KaJLabs/Lithosphere/pull/194`
+- Hostname correction deployment: `https://github.com/KaJLabs/Lithosphere/actions/runs/35519157421`
 
 ## MX-06 — Validator infrastructure cleanup
 
@@ -1058,7 +1067,7 @@ Evidence:
 | 2026-09-20 | Thanos public baseline | PASS, OWNER ACCEPTANCE OPEN | `/signin` and a valid-address `/api/auth/nonce` request return HTTP 200. The wallet-team browser matrix, low-value signed transaction, and named acceptance remain external. |
 | 2026-09-20 | DNNS acceptance baseline | PASS, EXTERNAL BLOCKERS UNCHANGED | Transaction-free preflight reconfirmed Kamet chain `900523`, registry bytecode, and all nine forward fixtures at the expected checksum address. No reverse resolver is configured; public documentation still omits Kamet `900523` and the verified registry address. |
 | 2026-09-20 | Quantt fail-closed baseline | PASS (DISABLED), OWNER INPUTS OPEN | `/quantt` returns HTTP 200, status remains `configured: false` with `apiOrigin: null`, insights fail closed with HTTP 503, research returns HTTP 200, and standards-valid `dev.quantt.at` TLS verification still fails. |
-| 2026-09-20 | Quantt hostname confirmation | OWNER INPUT RECEIVED, CORRECTION PREPARED | The owner confirmed `quantts.ai` as the hostname boundary. HTTPS checks pass for the apex and `dev.quantts.ai`; the adapter allowlist and developer link were changed to `quantts.ai`. The exact API base URL/path, auth scheme, schema, credential, and product acceptance remain open, so activation stays disabled. |
+| 2026-09-20 | Quantt hostname correction | MERGED, DEPLOYED, DISABLED | The owner confirmed `quantts.ai` as the hostname boundary. PR #194 passed all checks and merged as `bd21503968e85b949bfd26c7cb7023a1815c66e0`; protected run `35519157421` passed deployment and public health gates. Live status is still safely unconfigured with null API origin, insights return HTTP 503, and the corrected developer link is present. The exact API contract, credential, and product acceptance remain open. |
 
 ## Change log
 
@@ -1069,7 +1078,10 @@ Evidence:
   HTTP 502, so no API endpoint or contract was inferred.
 - Changed the server allowlist and developer link from `quantt.at` to `quantts.ai`, while preserving fail-closed
   requirements for an explicit API base URL, authentication scheme, insights path, credential, and schema.
-- Updated tests and acceptance records; no secret was configured and Quantt remains disabled.
+- PR #194 passed all checks and merged as `bd21503968e85b949bfd26c7cb7023a1815c66e0`; protected deployment run
+  `35519157421` passed its public health gate.
+- Live verification confirmed the corrected developer link and retained disabled state; no secret was configured and
+  Quantt remains disabled.
 - Updated by: `bachal-mb`.
 
 ### 2026-09-20 — External acceptance streams revalidated
