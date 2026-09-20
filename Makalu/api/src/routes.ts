@@ -535,7 +535,7 @@ interface ValidatorRow {
   min_self_delegation?: string | null;
   status: number;
   jailed: boolean;
-  uptime_percentage?: number | null;
+  uptime_percentage?: number | string | null;
   missed_blocks_counter?: number | string | null;
   updated_at?: Date | string | null;
   rank?: string | number | null;
@@ -1506,11 +1506,17 @@ function mapValidator(r: ValidatorRow, includeMetrics = false) {
   return {
     ...result,
     tokens: r.tokens ?? '0',
-    uptimePercentage: r.uptime_percentage ?? null,
+    uptimePercentage: finiteNumberOrNull(r.uptime_percentage),
     missedBlocks: r.missed_blocks_counter != null ? String(r.missed_blocks_counter) : null,
     jailed: Boolean(r.jailed),
     updatedAt: r.updated_at instanceof Date ? r.updated_at.toISOString() : r.updated_at ?? null,
   };
+}
+
+function finiteNumberOrNull(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 // ── Router ──────────────────────────────────────────────────────────────────
@@ -2332,7 +2338,7 @@ export function explorerRouter(): Router {
         commissionMaxRate: formatCommission(validator.commission_max_rate),
         commissionMaxChange: formatCommission(validator.commission_max_change),
         jailed: Boolean(validator.jailed),
-        uptimePercentage: validator.uptime_percentage ?? null,
+        uptimePercentage: finiteNumberOrNull(validator.uptime_percentage),
         missedBlocks: validator.missed_blocks_counter != null
           ? String(validator.missed_blocks_counter)
           : null,

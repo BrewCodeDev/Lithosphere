@@ -40,6 +40,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Bridge', href: '/bridge' },
   { label: 'Swap', href: '/swap' },
   { label: 'Faucet', href: '/faucet' },
+  { label: 'Validators', href: '/validators' },
   { label: 'Sign In', href: '/signin' },
 ];
 
@@ -51,7 +52,6 @@ const MORE_ITEMS: NavItem[] = [
   { label: 'LITHO TGE', href: 'https://tge.ignite.trade', external: true },
   { label: 'LITHO.ai', href: 'https://litho.ai', external: true },
   { label: 'ACCESS', href: 'https://access.litho.ai', external: true },
-  { label: 'Validators', href: '/validators' },
   { label: 'Governance', href: 'https://vote.litho.ai', external: true },
   { label: 'Contracts', href: 'https://lithiclang.ai/verifier', external: true },
   { label: 'Status', href: 'https://status.litho.ai', external: true },
