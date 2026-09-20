@@ -3,7 +3,7 @@
 - **Workstream:** MX-05
 - **Environment:** Makalu explorer and API
 - **Status:** Assumption-free gates deployed and fail-closed; Quantt owner inputs and TLS repair required
-- **Last verified:** 2026-08-14
+- **Last verified:** 2026-09-20
 
 This is the activation and acceptance record for the Quantt explorer integration. Similar-looking domains, guessed
 paths, inferred authentication, and inferred response fields are not acceptable evidence.
@@ -17,6 +17,10 @@ paths, inferred authentication, and inferred response fields are not acceptable 
 | Requested developer portal | FAIL | A standards-valid HTTPS request to `https://dev.quantt.at/` fails hostname verification. |
 | Developer DNS | OBSERVED | `dev.quantt.at` resolves externally at verification time; the raw address is retained only in the protected evidence record. |
 | Presented certificate | WRONG HOST | Certificate subject is `CN=dev.quantts.ai`; SANs cover `api.quantts.ai`, `dev.quantts.ai`, `engine.quantts.ai`, and `enterprise.quantts.ai`, but not `dev.quantt.at`. |
+
+The public state was repeated on 2026-09-20: `/quantt` returned HTTP 200, status remained `configured: false` with
+`apiOrigin: null`, insights failed closed with HTTP 503, the research portal returned HTTP 200, and a
+standards-valid request to `dev.quantt.at` still failed TLS hostname verification.
 
 The similarly named `https://dev.quantts.ai/` currently returns HTTP 200 and `https://api.quantts.ai/` returns HTTP
 404 at its root. They are observations only. Neither domain is approved as the Lithosphere integration API, and the

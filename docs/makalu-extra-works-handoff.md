@@ -1,9 +1,9 @@
 # Makalu extra works — living handoff
 
 - **Status:** Active — closing one stream at a time
-- **Last verified:** 2026-09-19 PKT (UTC+05:00)
+- **Last verified:** 2026-09-20 PKT (UTC+05:00)
 - **Repository:** `KaJLabs/Lithosphere`
-- **Default branch inspected:** `origin/main` at `a3c9c7d2a417dd2aa9afd4051cf0fd54b78e0a26`
+- **Default branch inspected:** `origin/main` at `25d93febbffd8aaf6b54e01b24417cad567c0fd3`
 - **Latest merged workstream change:** PR #184 at `d2e4b39ade7971f4c3d94dd971e5125d2eb3073e`
 - **Network in scope:** Makalu testnet, EVM chain ID `700777`, Cosmos chain ID `lithosphere_700777-2`
 
@@ -1055,8 +1055,23 @@ Evidence:
 | 2026-09-14 | Evidence-backed checklist | PUBLIC PR APPROVED AND MERGED | `@lithoagent` approved exact signed `bachal-mb` head `af42b5ac4304cfb47d66c508f67f3c623b674df1`; all PR #181 checks passed and it merged as `839cc3b92c1d0950165d78864c945fdb4b7f5236`. |
 | 2026-09-14 | MX-01 API image publication gate | PUBLIC PR OPEN, CHECKS PASS, ENVIRONMENT PROTECTED | Public PR #183 at signed `bachal-mb` head `9a4a33bf1d1c637b0483260835d2aaaa6416b427` adds a manual workflow to publish only the Autha-accepted v0.9.2 API image. All reported PR checks pass. The `multx-image-publish` environment exists with `@lithoagent` required review, self-review prevention, admin bypass disabled, and zero environment secrets. No image publication, staging run, deployment, signer request, transaction, or activation occurred. |
 | 2026-09-14 | MX-01 schema-v2 plan pinning | PRIVATE PR MERGED, NO RUN AUTHORIZED | Private PR #30 at signed `bachal-mb` head `9044ca6c248ca2a3bb632e36acbdcdfaea23c1d2` merged as `d2b9eb11b9e7d4054133a57f6d6ac64f3b8e753f`; GitHub reports valid signatures for both commits. It pins the accepted v0.9.2 source commit, Autha receipt reference, reviewed collector commit, and collector SHA-256 in the example schema-v2 plan. CI `offline-verifier` passed, unresolved operational inputs remain fail-closed, and GitHub records no submitted PR #30 review. |
+| 2026-09-20 | Thanos public baseline | PASS, OWNER ACCEPTANCE OPEN | `/signin` and a valid-address `/api/auth/nonce` request return HTTP 200. The wallet-team browser matrix, low-value signed transaction, and named acceptance remain external. |
+| 2026-09-20 | DNNS acceptance baseline | PASS, EXTERNAL BLOCKERS UNCHANGED | Transaction-free preflight reconfirmed Kamet chain `900523`, registry bytecode, and all nine forward fixtures at the expected checksum address. No reverse resolver is configured; public documentation still omits Kamet `900523` and the verified registry address. |
+| 2026-09-20 | Quantt fail-closed baseline | PASS (DISABLED), OWNER INPUTS OPEN | `/quantt` returns HTTP 200, status remains `configured: false` with `apiOrigin: null`, insights fail closed with HTTP 503, research returns HTTP 200, and standards-valid `dev.quantt.at` TLS verification still fails. |
 
 ## Change log
+
+### 2026-09-20 — External acceptance streams revalidated
+
+- Rechecked Thanos public sign-in and nonce surfaces; both return HTTP 200, while the wallet-team browser matrix,
+  low-value signed transaction, and named acceptance remain external.
+- Re-ran the transaction-free DNNS baseline from current `main`: chain identity, registry bytecode, and all nine
+  forward fixtures pass. The reverse fixture and authoritative owner documentation/acceptance remain external.
+- Rechecked Quantt without bypassing its gates: the page is healthy, the adapter remains safely unconfigured,
+  insights return HTTP 503, and the requested development hostname still fails TLS verification.
+- Reconfirmed MX-06 is complete for the recorded three-node mainnet scope; no separate Makalu validator inventory
+  or rollout has been authorized.
+- Updated by: `bachal-mb`.
 
 ### 2026-09-14 - MX-01 image publication path opened
 
