@@ -3,7 +3,7 @@
 - **Workstream:** MX-04
 - **Environment:** Makalu explorer reading the Kamet DNNS registry
 - **Status:** Explorer changes merged and deployed; DNNS-team acceptance pending
-- **Last verified:** 2026-08-19
+- **Last verified:** 2026-09-20
 
 This record separates facts verified from deployed contracts and source-controlled deployment metadata from items
 that still require the DNNS owner's confirmation. It must not be marked accepted until every open item below has a
@@ -71,6 +71,10 @@ The command reads chain identity, registry bytecode, every forward fixture, the 
 README. It does not register, update, or submit any transaction. Its 2026-08-19 result remains externally blocked:
 all nine forward fixtures pass, no reverse fixture is configured, and the public documentation still describes
 Makalu `700777` without publishing the verified Kamet registry address.
+
+The same transaction-free command was repeated on 2026-09-20 from current `main` with the same result: all nine
+forward fixtures passed, the reverse resolver remained unset, and the public documentation still omitted Kamet
+`900523` and the verified registry address. No transaction was submitted.
 
 ## Explorer behavior and automated gates
 
