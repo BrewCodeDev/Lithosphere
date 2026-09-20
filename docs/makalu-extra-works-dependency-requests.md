@@ -1,7 +1,7 @@
 # Makalu extra works — current dependency requests
 
 - **Verified:** 2026-09-20
-- **Repository baseline:** `04131e12b464e9572f89f4d218011f56a7c4495a`
+- **Repository baseline:** `af7c7f100a10cd249ab642b282973ee57c1b2228`
 - **Network:** Makalu EVM chain `700777`; Cosmos chain `lithosphere_700777-2`
 
 These requests contain only the external inputs and approvals still needed. Repository work that is already merged or
@@ -17,6 +17,10 @@ exact head `893eced194661c4c6625b3b6bd52155d6d3c6856`, and the PR merged as
 `35b731f67bdbed09bf9ecac5afbd260d085d5320`. This repository approval does not replace Autha O-01/package O-02
 operational acceptance and does not authorize deployment or activation.
 
+Autha separately accepted package `MXDSV-20260919T092949Z` as scoped database/container isolation evidence. It did
+not accept the staged candidate identity: P-01/P-02/P-03 and O-01 remain open because the artifact is not bound to a
+reviewed commit/tag/manifest, two image digests are unreconciled, and the real application entrypoint did not run.
+
 Required next inputs and approvals:
 
 1. Backend/Bridge owners provide the approved route inventory for Ethereum, BNB Chain, Base, and LITHO: RPC
@@ -25,12 +29,14 @@ Required next inputs and approvals:
 2. Governance owners approve the exact five bridge signers, 3-of-5 threshold, Safe/Timelock/guardian identities,
    deployer, fee payer, caps, liquidity owners, and activation authority. Historical 5-of-7 material is not the
    current candidate policy.
-3. Operations privately provide the isolated database/read-only role, signer hosts and custodians, recovery owners,
-   deployment host/window, monitoring, retention, rollback, and recovery-drill evidence required by Autha O-01 /
+3. Operations preserve the accepted scoped database/container isolation and privately provide the remaining signer
+   hosts/custodians, recovery owners, monitoring, rollback, and recovery-drill evidence required by Autha O-01 /
    package O-02.
-4. Independent security/operator reviewers accept the exact merged post-v0.9.2 native-settlement candidate and its
-   full-rehearsal evidence; record the source commit, image/configuration digests, reviewer identity, and scope.
-5. After independent review, authorize a **disabled** staging rebuild and P-01 isolation/runtime verification.
+4. Rebuild disabled staging from an exact reviewed commit/tag with a per-file manifest, one reconciled immutable
+   image digest, and enforceable disabled configuration while the real application entrypoint runs.
+5. Independent security/operator reviewers accept that exact candidate and repeated transaction-free rehearsal;
+   record the source commit, image/configuration digests, reviewer identity, run IDs, and scope.
+6. After independent review, authorize the next controlled **disabled** staging verification.
    Deployment, liquidity, signing, canary, and activation require separate approvals.
 
 Acceptance evidence must identify the exact source commit, image digest, configuration digest, reviewer, run IDs,

@@ -115,6 +115,12 @@ the approved head itself as unsigned; this is recorded rather than retroactively
 repository finding/remediation gate only. It does not close Autha O-01/package O-02, approve disabled staging, or
 authorize deployment, signing, liquidity, canary, or activation.
 
+The supplied Autha review of disabled-staging package `MXDSV-20260919T092949Z` accepts its database and container
+isolation as scoped evidence. It does not establish the staged candidate identity or exercise the real application:
+P-01/P-02/P-03 and O-01 remain open. The package/report hashes and exact disposition are recorded in
+`MultX/docs/audit/AUTHA_PRIVATE_INFRA_STAGING_RECEIPT_2026-09-19.md`. This advances isolation evidence only and
+grants no deployment or activation authority.
+
 The worktree is shared and contains pre-existing changes across several streams. Preserve them, isolate each stream
 into a reviewable change, and never bulk-commit the dirty worktree.
 
@@ -125,7 +131,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | MX-03 | Thanos Wallet | Repository work merged and deployed; acceptance open | EXTERNAL BLOCKER | Wallet team completes the published-version browser matrix, signed transaction, and approval record. |
 | MX-04 | DNNS | Verified explorer hardening merged and deployed; owner acceptance open | EXTERNAL BLOCKER | DNNS owner confirms the supported interface, fixes public docs, nominates a reverse record, and accepts cache policy. |
 | MX-05 | Quantt | Approved `quantts.ai` boundary merged and deployed; adapter remains disabled | EXTERNAL BLOCKER | Obtain the exact API contract, credential, and product acceptance. |
-| MX-01 | MultX / Lithoswap | Accepted v0.9.2 image is published; repository findings on native-settlement PR #188 are remediated, approved, and merged; O-01/package O-02 and production inputs remain open; MultX disabled | EXTERNAL BLOCKER | Obtain independent operational acceptance and approve the private route/infrastructure inputs before any disabled-staging run. |
+| MX-01 | MultX / Lithoswap | Accepted v0.9.2 image is published; PR #188 merged; Autha accepted scoped staging isolation but P-01/P-02/P-03, O-01, artifact identity, application-level disabled behavior, and production inputs remain open; MultX disabled | IN PROGRESS | Bind a rebuilt disabled candidate to exact reviewed source and one image digest, run the real application fail-closed, then obtain Autha disposition. |
 | MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; four tools remain specification-only and there is no deployable compiler/public release | IN PROGRESS | Obtain approved language/VM semantics and product/release/security acceptance before compiler or public-release work. |
 
 ## Sequential closure queue
@@ -280,6 +286,11 @@ Remaining actions:
 - [x] Remediate the repository security/evidence findings on native-settlement PR #188, pass all reported checks,
       obtain exact-head approval from `@amirmughal22`, and merge as
       `35b731f67bdbed09bf9ecac5afbd260d085d5320`. This does not replace Autha operational acceptance.
+- [x] Receive, hash, and record Autha's scoped acceptance of database/container isolation in package
+      `MXDSV-20260919T092949Z`. This does not establish the staged candidate identity or close O-01.
+- [ ] Close Autha P-01/P-02/P-03: bind disabled staging to an exact reviewed commit/tag and manifest, reconcile one
+      immutable image digest, run the real application under enforceable disabled configuration, repeat the
+      transaction-free rehearsal, and obtain written Autha disposition.
 - [ ] Complete Autha O-01/package O-02 operational readiness: approved seven-host inventory and network topology;
       independent signer custodians and recovery owners; governance, deployer, fee-payer, asset, route, cap, finality,
       and independent-RPC approvals; source-pinned production image publication/provenance; host/key/PKI hardening;
@@ -323,9 +334,11 @@ Remaining actions:
       that its unexecuted schema-v1 package did not fully bind secrets, role privileges, observed collector/run/RPC
       identities, execution metadata, or same-clone/same-event replay. Private PR #27 superseded it with fail-closed
       schema v2 and merged as `97577980c93ea31db6e36e1fa9abdbac9f33f66a`; formal independent acceptance remains
-      open. Private PR #29's independently approved collector is merged and pinned, but every approved image,
-      isolated database and read-only role, four-chain route/RPC/finality,
-      operator/reviewer, host/window, evidence-store, and retention input remain required before the run.
+      open. Private PR #29's independently approved collector is merged and pinned. Package
+      `MXDSV-20260919T092949Z` now evidences a dedicated database/read-only role and scoped container isolation, but
+      its candidate identity is not established and no application process ran. A reviewed image/configuration
+      identity, four-chain route/RPC/finality approvals, signer/operator independence, application-level disabled
+      behavior, and accepted transaction-free replay remain required.
 - [x] Modernize and explicitly disposition the MultX deployment/test toolchain's transitive audit findings. The
       deprecated Waffle/Ganache path is removed; the complete tree now reports 0 critical/9 high and the production
       tree reports zero. `MultX/docs/audit/CONTRACT_TOOLCHAIN_DISPOSITION_2026-09-10.md` prohibits the residual
@@ -1070,15 +1083,27 @@ Evidence:
 | 2026-09-12 | MX-01 disposition record | PUBLIC PR MERGED, SIGNATURES VALID | Public PR #179 merged as `e75202012bc35fd480f1c009ba482b94118de951`; its exact `bachal-mb` head `791c9135b6b6be540668b91cd8bf8eb8de56ba4a` and GitHub merge commit both report valid signatures, `@lithoagent` approved that exact head, and all reported checks passed. This records evidence only and does not authorize deployment or activation. |
 | 2026-09-12 | Live explorer safety-gate recheck | PASS, BLOCKERS UNCHANGED | Makalu reports EVM/Cosmos IDs `700777` / `lithosphere_700777-2`, Faucet and Bridge enabled, and Swap disabled. Its faucet still reports native LITHO plus ten LEP100 assets; every LEP100 balance remains below the minimum ten-token claim. Quantt still reports `configured: false`. LITHO mainnet reports IDs `9005` / `lithosphere_9005-1` with Faucet, Bridge, and Swap disabled. No checklist item was closed by this observation. |
 | 2026-09-14 | Evidence-backed checklist | PUBLIC PR APPROVED AND MERGED | `@lithoagent` approved exact signed `bachal-mb` head `af42b5ac4304cfb47d66c508f67f3c623b674df1`; all PR #181 checks passed and it merged as `839cc3b92c1d0950165d78864c945fdb4b7f5236`. |
-| 2026-09-14 | MX-01 API image publication gate | PUBLIC PR OPEN, CHECKS PASS, ENVIRONMENT PROTECTED | Public PR #183 at signed `bachal-mb` head `9a4a33bf1d1c637b0483260835d2aaaa6416b427` adds a manual workflow to publish only the Autha-accepted v0.9.2 API image. All reported PR checks pass. The `multx-image-publish` environment exists with `@lithoagent` required review, self-review prevention, admin bypass disabled, and zero environment secrets. No image publication, staging run, deployment, signer request, transaction, or activation occurred. |
+| 2026-09-14 | MX-01 API image publication gate | COMPLETE, ACTIVATION NOT AUTHORIZED | Public PRs #183/#184 merged and protected run `34965720154` published the Autha-accepted v0.9.2 API image with immutable identity, signature, provenance, and SBOM evidence. This publication does not authorize staging, deployment, signing, liquidity, or activation. |
 | 2026-09-14 | MX-01 schema-v2 plan pinning | PRIVATE PR MERGED, NO RUN AUTHORIZED | Private PR #30 at signed `bachal-mb` head `9044ca6c248ca2a3bb632e36acbdcdfaea23c1d2` merged as `d2b9eb11b9e7d4054133a57f6d6ac64f3b8e753f`; GitHub reports valid signatures for both commits. It pins the accepted v0.9.2 source commit, Autha receipt reference, reviewed collector commit, and collector SHA-256 in the example schema-v2 plan. CI `offline-verifier` passed, unresolved operational inputs remain fail-closed, and GitHub records no submitted PR #30 review. |
 | 2026-09-20 | Thanos public baseline | PASS, OWNER ACCEPTANCE OPEN | `/signin` and a valid-address `/api/auth/nonce` request return HTTP 200. The wallet-team browser matrix, low-value signed transaction, and named acceptance remain external. |
 | 2026-09-20 | DNNS acceptance baseline | PASS, EXTERNAL BLOCKERS UNCHANGED | Transaction-free preflight reconfirmed Kamet chain `900523`, registry bytecode, and all nine forward fixtures at the expected checksum address. No reverse resolver is configured; public documentation still omits Kamet `900523` and the verified registry address. |
 | 2026-09-20 | Quantt fail-closed baseline | PASS (DISABLED), OWNER INPUTS OPEN | `/quantt` returns HTTP 200, status remains `configured: false` with `apiOrigin: null`, insights fail closed with HTTP 503, research returns HTTP 200, and standards-valid `dev.quantt.at` TLS verification still fails. |
 | 2026-09-20 | Quantt hostname correction | MERGED, DEPLOYED, DISABLED | The owner confirmed `quantts.ai` as the hostname boundary. PR #194 passed all checks and merged as `bd21503968e85b949bfd26c7cb7023a1815c66e0`; protected run `35519157421` passed deployment and public health gates. Live status is still safely unconfigured with null API origin, insights return HTTP 503, and the corrected developer link is present. The exact API contract, credential, and product acceptance remain open. |
 | 2026-09-20 | MX-01 native-settlement repository gate | MERGED, OPERATIONAL ACCEPTANCE OPEN | PR #191 remediated the recorded review findings. All reported PR #188 checks passed, `@amirmughal22` approved exact head `893eced194661c4c6625b3b6bd52155d6d3c6856`, and PR #188 merged as `35b731f67bdbed09bf9ecac5afbd260d085d5320`. The merge commit is signature-valid; the approved head is reported unsigned. No MultX deployment or activation is inferred, and Autha O-01/package O-02 plus private production inputs remain open. |
+| 2026-09-20 | MX-01 disabled-staging Autha receipt | SCOPED ISOLATION ACCEPTED, CANDIDATE NOT ACCEPTED | Evidence package `MXDSV-20260919T092949Z` hashes to `33ae9b873b478627fe3aa3b2bfc5347d4e549ee5c31215f11940a8359661dca7`; all six package-manifest and two nested-manifest entries verify. Autha accepts the database/container isolation as scoped but leaves P-01/P-02/P-03 and O-01 open because candidate provenance is unbound, image digests conflict, labels do not enforce disablement, and the application did not run. Receipt: `MultX/docs/audit/AUTHA_PRIVATE_INFRA_STAGING_RECEIPT_2026-09-19.md`. |
 
 ## Change log
+
+### 2026-09-20 — Autha disabled-staging evidence recorded
+
+- Independently matched the retained `MXDSV-20260919T092949Z` ZIP to Autha's stated SHA-256 and verified all six
+  package-manifest plus both nested-manifest entries with zero mismatches.
+- Recorded Autha's exact scoped disposition: database/container isolation accepted; staged candidate identity not
+  established; P-01/P-02/P-03 and O-01 remain open.
+- Added a public receipt that records hashes and limits without committing private infrastructure evidence.
+- Preserved the operational boundary: the real application did not execute, no production contracts exist, and no
+  deployment, signing, liquidity, canary, or activation is authorized.
+- Updated by: `bachal-mb`.
 
 ### 2026-09-20 — MultX PR #188 repository gate closed
 
