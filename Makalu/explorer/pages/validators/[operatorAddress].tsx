@@ -10,13 +10,29 @@ import { EXPLORER_TITLE } from '@/lib/constants';
 import type { ApiValidatorDetail } from '@/lib/types';
 
 function formatTokens(raw: string) {
-  try {
-    return (Number(BigInt(raw)) / 1e18).toLocaleString('en-US', {
-      maximumFractionDigits: 4,
-    });
-  } catch {
-    return '0';
+  const baseUnits = Number(raw);
+  if (!Number.isFinite(baseUnits)) return '0';
+  return (baseUnits / 1e18).toLocaleString('en-US', {
+    maximumFractionDigits: 4,
+  });
+}
+
+function finiteNumberOrNull(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatTokensPerShare(tokens: string, shares: string): string {
+  const tokenAmount = Number(tokens);
+  const shareAmount = Number(shares);
+  if (!Number.isFinite(tokenAmount) || !Number.isFinite(shareAmount) || shareAmount <= 0) {
+    return '—';
   }
+  return (tokenAmount / shareAmount).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6,
+  });
 }
 
 export default function ValidatorDetailPage() {
@@ -32,6 +48,11 @@ export default function ValidatorDetailPage() {
   if (loading || !data) {
     return <div className="card p-8 text-center text-[var(--color-text-muted)]">Loading validator...</div>;
   }
+
+  // API decimals can be serialized as JSON strings by PostgreSQL. Normalize at
+  // the render boundary so an older API deployment cannot crash this page.
+  const uptimePercentage = finiteNumberOrNull(data.uptimePercentage);
+  const votingPowerPercentage = finiteNumberOrNull(data.votingPowerPercentage) ?? 0;
 
   return (
     <>
@@ -63,7 +84,7 @@ export default function ValidatorDetailPage() {
           <div className="text-left md:text-right">
             <div className="text-sm text-[var(--color-text-muted)]">Voting Power · Rank #{data.rank || '—'}</div>
             <div className="text-2xl font-bold">{data.votingPower} LITHO</div>
-            <div className="mt-1 text-xs text-[var(--color-text-muted)]">{data.votingPowerPercentage.toFixed(2)}% of active voting power</div>
+            <div className="mt-1 text-xs text-[var(--color-text-muted)]">{votingPowerPercentage.toFixed(2)}% of active voting power</div>
           </div>
         </div>
       </section>
@@ -72,16 +93,16 @@ export default function ValidatorDetailPage() {
         <Stat label="Commission" value={data.commission} />
         <Stat label="Max Commission" value={data.commissionMaxRate} />
         <Stat label="Minimum Self Delegation" value={`${formatTokens(data.minSelfDelegation)} LITHO`} />
-        <Stat label="Uptime" value={data.uptimePercentage == null ? '—' : `${data.uptimePercentage}%`} />
+        <Stat label="Uptime" value={uptimePercentage == null ? '—' : `${uptimePercentage.toFixed(2)}%`} />
       </div>
 
       <div className="mb-6 grid gap-4 lg:grid-cols-2">
         <section className="card p-6">
           <div className="mb-4 flex items-center justify-between">
             <div><h2 className="text-lg font-semibold">Signing health</h2><p className="text-sm text-[var(--color-text-muted)]">Current on-chain signing window</p></div>
-            <div className="text-2xl font-bold text-emerald-500">{data.uptimePercentage == null ? '—' : `${data.uptimePercentage.toFixed(2)}%`}</div>
+            <div className="text-2xl font-bold text-emerald-500">{uptimePercentage == null ? '—' : `${uptimePercentage.toFixed(2)}%`}</div>
           </div>
-          <HealthGauge value={data.uptimePercentage} />
+          <HealthGauge value={uptimePercentage} />
           <div className="mt-4 text-center text-xs text-[var(--color-text-muted)]">Calculated from the validator&apos;s real missed-block counter, not an estimated history.</div>
         </section>
         <section className="card p-6">
@@ -95,13 +116,22 @@ export default function ValidatorDetailPage() {
         </section>
       </div>
 
+      <section className="card p-6 mb-6">
+        <h2 className="text-lg font-semibold mb-1">Delegation</h2>
+        <p className="mb-4 text-sm text-[var(--color-text-muted)]">Current on-chain staking values for this validator.</p>
+        <div className="grid gap-x-8 md:grid-cols-2">
+          <Detail label="Total Delegated" value={`${formatTokens(data.tokens)} LITHO`} />
+          <Detail label="Delegator Shares" value={formatTokens(data.delegatorShares)} />
+          <Detail label="Tokens per Share" value={formatTokensPerShare(data.tokens, data.delegatorShares)} />
+          <Detail label="Minimum Self Delegation" value={`${formatTokens(data.minSelfDelegation)} LITHO`} />
+        </div>
+      </section>
+
       <section className="card p-6">
         <h2 className="text-lg font-semibold mb-4">Validator Information</h2>
         <div className="grid gap-x-8 md:grid-cols-2">
           <Detail label="Operator Address" value={data.address} mono />
           <Detail label="Consensus Address" value={data.consensusAddress} mono />
-          <Detail label="Total Staked" value={`${formatTokens(data.tokens)} LITHO`} />
-          <Detail label="Delegator Shares" value={formatTokens(data.delegatorShares)} />
           <Detail label="Max Commission Change" value={data.commissionMaxChange} />
           <Detail label="Missed Blocks" value={data.missedBlocks ?? '—'} />
           {data.website && (

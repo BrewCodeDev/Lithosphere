@@ -184,7 +184,8 @@ describe('GET /api/validators/:operatorAddress', () => {
       commission_max_change: '0.01',
       status: 3,
       jailed: false,
-      uptime_percentage: 99.8,
+      // pg returns NUMERIC columns as strings in production.
+      uptime_percentage: '99.8',
       missed_blocks_counter: 2,
       rank: '2',
       total_bonded_tokens: '1000000000000000000000',
