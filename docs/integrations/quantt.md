@@ -84,7 +84,9 @@ server-side and sanitized errors do not return it to clients.
 | Repository PR | [#88](https://github.com/KaJLabs/Lithosphere/pull/88) |
 | Merge commit | `c01ec48472544270ec0716483e5a07bba947b079` |
 | Deployment run/release | [31828985116](https://github.com/KaJLabs/Lithosphere/actions/runs/31828985116) — PASS / `c01ec48472544270ec0716483e5a07bba947b079` |
+| Hostname correction PR | [#194](https://github.com/KaJLabs/Lithosphere/pull/194) — all checks passed; signed `bachal-mb` head `222ac1f` |
+| Hostname correction deployment | [35519157421](https://github.com/KaJLabs/Lithosphere/actions/runs/35519157421) — PASS / `bd21503968e85b949bfd26c7cb7023a1815c66e0` |
 | Quantt contract/version | Pending |
-| Live test artifact | `/quantt` 200; status `configured: false`, `apiOrigin: null`; insights 503 after deployment (2026-08-14) |
+| Live test artifact | `/quantt` 200 with `https://dev.quantts.ai/`; status `configured: false`, `apiOrigin: null`; insights 503 after deployment (2026-09-20) |
 | Quantt approver/date | Pending |
 | Dev Infra approver/date | Pending |
