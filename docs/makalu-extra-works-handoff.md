@@ -108,6 +108,13 @@ retention, mutable working-tree candidate packaging, and no exact tag-pinned ful
 are recorded on the PR, which was converted to draft. The candidate remains outside Autha acceptance and MultX stays
 disabled.
 
+Those repository findings were subsequently remediated through PR #191 and the refreshed PR #188 head. All reported
+checks passed, `@amirmughal22` approved exact head `893eced194661c4c6625b3b6bd52155d6d3c6856`, and PR #188 merged as
+`35b731f67bdbed09bf9ecac5afbd260d085d5320` on 2026-09-19. GitHub reports the merge commit signature as valid but
+the approved head itself as unsigned; this is recorded rather than retroactively rewritten. The merge closes the
+repository finding/remediation gate only. It does not close Autha O-01/package O-02, approve disabled staging, or
+authorize deployment, signing, liquidity, canary, or activation.
+
 The worktree is shared and contains pre-existing changes across several streams. Preserve them, isolate each stream
 into a reviewable change, and never bulk-commit the dirty worktree.
 
@@ -118,7 +125,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | MX-03 | Thanos Wallet | Repository work merged and deployed; acceptance open | EXTERNAL BLOCKER | Wallet team completes the published-version browser matrix, signed transaction, and approval record. |
 | MX-04 | DNNS | Verified explorer hardening merged and deployed; owner acceptance open | EXTERNAL BLOCKER | DNNS owner confirms the supported interface, fixes public docs, nominates a reverse record, and accepts cache policy. |
 | MX-05 | Quantt | Approved `quantts.ai` boundary merged and deployed; adapter remains disabled | EXTERNAL BLOCKER | Obtain the exact API contract, credential, and product acceptance. |
-| MX-01 | MultX / Lithoswap | Accepted v0.9.2 image is published; native-settlement PR #188 is draft with open security/evidence findings; O-01/package O-02 and production inputs remain open; MultX disabled | IN PROGRESS | Correct and independently review PR #188, attach exact full-rehearsal evidence, then approve private route/infrastructure inputs before any disabled-staging run. |
+| MX-01 | MultX / Lithoswap | Accepted v0.9.2 image is published; repository findings on native-settlement PR #188 are remediated, approved, and merged; O-01/package O-02 and production inputs remain open; MultX disabled | EXTERNAL BLOCKER | Obtain independent operational acceptance and approve the private route/infrastructure inputs before any disabled-staging run. |
 | MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; four tools remain specification-only and there is no deployable compiler/public release | IN PROGRESS | Obtain approved language/VM semantics and product/release/security acceptance before compiler or public-release work. |
 
 ## Sequential closure queue
@@ -270,6 +277,9 @@ Remaining actions:
       the approved non-AWS signer architecture in a review candidate.
 - [x] Merge the non-AWS candidate and obtain independent source/bytecode review through the exact superseding v0.9.2
       tag. Preserve v0.9.0 only as rejected historical evidence.
+- [x] Remediate the repository security/evidence findings on native-settlement PR #188, pass all reported checks,
+      obtain exact-head approval from `@amirmughal22`, and merge as
+      `35b731f67bdbed09bf9ecac5afbd260d085d5320`. This does not replace Autha operational acceptance.
 - [ ] Complete Autha O-01/package O-02 operational readiness: approved seven-host inventory and network topology;
       independent signer custodians and recovery owners; governance, deployer, fee-payer, asset, route, cap, finality,
       and independent-RPC approvals; source-pinned production image publication/provenance; host/key/PKI hardening;
@@ -291,11 +301,9 @@ Remaining actions:
       `627cc75f44404c2f0da3f6e34acae4e34401a89c`. `@lithoagent` approved that exact head, it merged as
       `3e9c782b67e3f3a47aebdc2e49f4b4ec8aedbe58`, and repository/commit/SHA-256 are recorded in private issue #28;
       the completed schema-v2 plan must use these exact identities.
-- [ ] Review and merge public image-publication PR #183, then dispatch the protected workflow after `@lithoagent`
-      environment approval. Record the immutable `ghcr.io/...@sha256:...` image, signature, provenance, SBOM, and run
-      URL in the private schema-v2 plan before checking the image input complete. PR #183 currently has all checks
-      passing and the `multx-image-publish` environment is protected with no environment secrets, but no image has
-      been published yet.
+- [x] Review and merge public image-publication PR #183 and dispatch the protected workflow after `@lithoagent`
+      environment approval. Run `34965720154` published the accepted v0.9.2 API image; its immutable image identity,
+      signature, provenance, SBOM, and run URL must remain pinned in the private schema-v2 plan.
 - [x] Merge private plan-pinning PR #30. It merged as `d2b9eb11b9e7d4054133a57f6d6ac64f3b8e753f` with
       signature-valid signed head `9044ca6c248ca2a3bb632e36acbdcdfaea23c1d2` and signature-valid GitHub merge commit.
       It pins the accepted v0.9.2 source identity and independently reviewed collector identity in the example plan,
@@ -1068,8 +1076,19 @@ Evidence:
 | 2026-09-20 | DNNS acceptance baseline | PASS, EXTERNAL BLOCKERS UNCHANGED | Transaction-free preflight reconfirmed Kamet chain `900523`, registry bytecode, and all nine forward fixtures at the expected checksum address. No reverse resolver is configured; public documentation still omits Kamet `900523` and the verified registry address. |
 | 2026-09-20 | Quantt fail-closed baseline | PASS (DISABLED), OWNER INPUTS OPEN | `/quantt` returns HTTP 200, status remains `configured: false` with `apiOrigin: null`, insights fail closed with HTTP 503, research returns HTTP 200, and standards-valid `dev.quantt.at` TLS verification still fails. |
 | 2026-09-20 | Quantt hostname correction | MERGED, DEPLOYED, DISABLED | The owner confirmed `quantts.ai` as the hostname boundary. PR #194 passed all checks and merged as `bd21503968e85b949bfd26c7cb7023a1815c66e0`; protected run `35519157421` passed deployment and public health gates. Live status is still safely unconfigured with null API origin, insights return HTTP 503, and the corrected developer link is present. The exact API contract, credential, and product acceptance remain open. |
+| 2026-09-20 | MX-01 native-settlement repository gate | MERGED, OPERATIONAL ACCEPTANCE OPEN | PR #191 remediated the recorded review findings. All reported PR #188 checks passed, `@amirmughal22` approved exact head `893eced194661c4c6625b3b6bd52155d6d3c6856`, and PR #188 merged as `35b731f67bdbed09bf9ecac5afbd260d085d5320`. The merge commit is signature-valid; the approved head is reported unsigned. No MultX deployment or activation is inferred, and Autha O-01/package O-02 plus private production inputs remain open. |
 
 ## Change log
+
+### 2026-09-20 — MultX PR #188 repository gate closed
+
+- Verified PR #191 remediation and the refreshed PR #188 state against GitHub rather than the stale tracker entry.
+- Recorded that all reported checks passed, `@amirmughal22` approved exact head `893eced194661c4c6625b3b6bd52155d6d3c6856`,
+  and PR #188 merged as `35b731f67bdbed09bf9ecac5afbd260d085d5320`.
+- Preserved the signature boundary: GitHub reports a valid merge-commit signature and an unsigned approved head.
+- Closed only the repository remediation/merge item. Autha operational acceptance, private production inputs,
+  disabled staging, deployment, liquidity, canary, and activation remain open; MultX and Swap remain disabled.
+- Updated by: `bachal-mb`.
 
 ### 2026-09-20 — Quantt hostname boundary confirmed
 

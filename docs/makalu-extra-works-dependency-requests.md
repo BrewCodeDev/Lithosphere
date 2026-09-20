@@ -1,7 +1,7 @@
 # Makalu extra works — current dependency requests
 
-- **Verified:** 2026-09-19
-- **Repository baseline:** `a3c9c7d2a417dd2aa9afd4051cf0fd54b78e0a26`
+- **Verified:** 2026-09-20
+- **Repository baseline:** `04131e12b464e9572f89f4d218011f56a7c4495a`
 - **Network:** Makalu EVM chain `700777`; Cosmos chain `lithosphere_700777-2`
 
 These requests contain only the external inputs and approvals still needed. Repository work that is already merged or
@@ -11,9 +11,11 @@ infrastructure evidence through chat or repository issues.
 ## MultX / Lithoswap — Backend, Bridge, Security, and Operations
 
 The bridge, swap, signer, SDK, API, and UI source exists. The Autha-accepted v0.9.2 API image was published by run
-`34965720154`. MultX and Swap remain disabled. Native-settlement PR
-[#188](https://github.com/KaJLabs/Lithosphere/pull/188) is a draft after review found unresolved security and
-evidence issues.
+`34965720154`. MultX and Swap remain disabled. The findings on native-settlement PR
+[#188](https://github.com/KaJLabs/Lithosphere/pull/188) were remediated, all checks passed, `@amirmughal22` approved
+exact head `893eced194661c4c6625b3b6bd52155d6d3c6856`, and the PR merged as
+`35b731f67bdbed09bf9ecac5afbd260d085d5320`. This repository approval does not replace Autha O-01/package O-02
+operational acceptance and does not authorize deployment or activation.
 
 Required next inputs and approvals:
 
@@ -26,9 +28,8 @@ Required next inputs and approvals:
 3. Operations privately provide the isolated database/read-only role, signer hosts and custodians, recovery owners,
    deployment host/window, monitoring, retention, rollback, and recovery-drill evidence required by Autha O-01 /
    package O-02.
-4. Security reviewers close the PR #188 findings: transaction-attributed DEX evidence, bounded wallet-auth nonce
-   retention, consistent quorum documentation, immutable clean-tree packaging, and exact tag-pinned full-rehearsal
-   evidence.
+4. Independent security/operator reviewers accept the exact merged post-v0.9.2 native-settlement candidate and its
+   full-rehearsal evidence; record the source commit, image/configuration digests, reviewer identity, and scope.
 5. After independent review, authorize a **disabled** staging rebuild and P-01 isolation/runtime verification.
    Deployment, liquidity, signing, canary, and activation require separate approvals.
 
