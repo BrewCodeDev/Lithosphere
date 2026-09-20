@@ -90,12 +90,13 @@ Do not silently substitute an undocumented registry or display an unverified rev
 ## Quantt — Quantt and Product Owners
 
 The credentials-safe API proxy, explorer page, status endpoint, validation, tests, and OpenAPI paths are deployed but
-fail closed. On 2026-09-19, `/api/quantt/status` reported `configured: false`, insights returned HTTP 503,
-`research.quantt.at` was reachable, and `dev.quantt.at` failed certificate hostname validation.
+fail closed. The owner confirmed `quantts.ai` as the hostname boundary on 2026-09-20; its apex and developer portal
+pass HTTPS validation. `/api/quantt/status` remains `configured: false` and insights return HTTP 503 until the exact
+API contract and credential are supplied.
 
 Please provide:
 
-1. Approved production and development API base URLs with valid TLS.
+1. Exact production and development API base URLs beneath `quantts.ai` with valid TLS.
 2. Authentication scheme and a credential delivered through the approved secret store.
 3. Versioned endpoint paths, parameters, response schemas, and representative fixtures.
 4. Product decision for the research/analytics fields shown to users.

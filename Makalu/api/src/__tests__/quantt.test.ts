@@ -9,7 +9,7 @@ vi.mock('../db.js', () => ({
 }));
 
 const { explorerRouter } = await import('../routes.js');
-const { loadQuanttConfig } = await import('../quantt.js');
+const { loadQuanttConfig, QUANTT_DEVELOPER_URL } = await import('../quantt.js');
 
 const QUANTT_ENV_KEYS = [
   'QUANTT_API_BASE_URL',
@@ -42,11 +42,12 @@ describe('Quantt integration', () => {
   });
 
   it('rejects non-Quantt, non-HTTPS, and malformed upstream configuration', () => {
-    expect(loadQuanttConfig({ QUANTT_API_BASE_URL: 'http://dev.quantt.at', QUANTT_API_KEY: 'key' })).toBeNull();
-    expect(loadQuanttConfig({ QUANTT_API_BASE_URL: 'https://quantt.at.evil.example', QUANTT_API_KEY: 'key' })).toBeNull();
-    expect(loadQuanttConfig({ QUANTT_API_BASE_URL: 'https://dev.quantt.at', QUANTT_API_KEY: 'key', QUANTT_INSIGHTS_PATH: '//evil.example' })).toBeNull();
+    expect(loadQuanttConfig({ QUANTT_API_BASE_URL: 'http://dev.quantts.ai', QUANTT_API_KEY: 'key' })).toBeNull();
+    expect(loadQuanttConfig({ QUANTT_API_BASE_URL: 'https://quantts.ai.evil.example', QUANTT_API_KEY: 'key' })).toBeNull();
+    expect(loadQuanttConfig({ QUANTT_API_BASE_URL: 'https://api.quantt.at', QUANTT_API_KEY: 'key' })).toBeNull();
+    expect(loadQuanttConfig({ QUANTT_API_BASE_URL: 'https://dev.quantts.ai', QUANTT_API_KEY: 'key', QUANTT_INSIGHTS_PATH: '//evil.example' })).toBeNull();
     expect(loadQuanttConfig({
-      QUANTT_API_BASE_URL: 'https://api.quantt.at?redirect=https://evil.example',
+      QUANTT_API_BASE_URL: 'https://api.quantts.ai?redirect=https://evil.example',
       QUANTT_API_KEY: 'key',
       QUANTT_API_AUTH_HEADER: 'authorization',
       QUANTT_INSIGHTS_PATH: '/v1/insights',
@@ -55,7 +56,7 @@ describe('Quantt integration', () => {
 
   it('requires an explicit approved auth scheme and insights path', () => {
     const base = {
-      QUANTT_API_BASE_URL: 'https://api.quantt.at',
+      QUANTT_API_BASE_URL: 'https://api.quantts.ai',
       QUANTT_API_KEY: 'server-secret',
     };
     expect(loadQuanttConfig(base)).toBeNull();
@@ -74,7 +75,7 @@ describe('Quantt integration', () => {
   });
 
   it('proxies an insight without exposing credentials', async () => {
-    process.env.QUANTT_API_BASE_URL = 'https://api.quantt.at/root/';
+    process.env.QUANTT_API_BASE_URL = 'https://api.quantts.ai/root/';
     process.env.QUANTT_API_KEY = 'server-secret';
     process.env.QUANTT_API_AUTH_HEADER = 'x-api-key';
     process.env.QUANTT_INSIGHTS_PATH = '/v1/market/insights';
@@ -94,17 +95,21 @@ describe('Quantt integration', () => {
     expect(JSON.stringify(response.body)).not.toContain('server-secret');
 
     const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit];
-    expect(url.toString()).toBe('https://api.quantt.at/v1/market/insights?symbol=LITHO');
+    expect(url.toString()).toBe('https://api.quantts.ai/v1/market/insights?symbol=LITHO');
     expect(init.headers).toMatchObject({ 'X-API-Key': 'server-secret' });
   });
 
   it('validates asset symbols before calling Quantt', async () => {
-    process.env.QUANTT_API_BASE_URL = 'https://api.quantt.at';
+    process.env.QUANTT_API_BASE_URL = 'https://api.quantts.ai';
     process.env.QUANTT_API_KEY = 'server-secret';
     const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
 
     await request(makeApp()).get('/api/quantt/insights?symbol=../../admin').expect(400);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('publishes the owner-confirmed developer hostname', () => {
+    expect(QUANTT_DEVELOPER_URL).toBe('https://dev.quantts.ai/');
   });
 });
