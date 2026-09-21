@@ -13,7 +13,12 @@ Each GitHub prerelease includes:
 - `checksums-v<version>.txt`
 - `release-manifest-v<version>.json`
 
-This preview does not yet ship a standalone Lithic compiler package or binary.
+This repository's release does not include the standalone Lithic compiler. The
+active compiler preview is maintained in
+[`KaJLabs/Lithic`](https://github.com/KaJLabs/Lithic). Use only a release
+published from that canonical repository and verify its attached checksums.
+The compiler remains a bounded preview until the native semantics, conformance,
+security, and chain-integration gates are approved.
 
 ## Download Release Assets
 
