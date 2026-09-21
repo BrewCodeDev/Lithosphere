@@ -794,6 +794,10 @@ Completed or evidenced:
       plaintext key file or recovery private key was shared/uploaded (2026-09-01).
 - [x] First protected scheduled dual-recipient recurrence `33505116681` passed at height `5,802,670` and retained
       two ciphertexts plus one matching manifest (2026-09-01).
+- [x] Published the Makalu-specific validator onboarding and byte-exact active genesis through signed replacement PR
+      #200. The guide separates Makalu from mainnet, verifies chain IDs and checksums, and covers sentry isolation,
+      key custody, synchronization, registration, monitoring, recovery, and the separate mainnet approval path
+      (2026-09-21).
 
 External inputs and authority required:
 
@@ -864,6 +868,9 @@ Evidence:
 - `docs/runbooks/validator-infra-cleanup.md`
 - `docs/VALIDATOR_TEAM_ACTION_ITEMS.md`
 - `.github/workflows/mainnet-chain-monitor.yaml`
+- `content/docs/testnet/validators.mdx`
+- `content/docs/testnet/assets/makalu-genesis.json`
+- `docs/testnet/validators.md`
 - `.github/workflows/mainnet-signing-state-backup.yaml`
 - `infra/litho-mainnet-9005/ansible/playbooks/mainnet-9005-deploy-monitor-account.yml`
 - `infra/litho-mainnet-9005/ansible/playbooks/mainnet-9005-deploy-backup-export.yml`
@@ -1116,6 +1123,7 @@ Evidence:
 | 2026-09-20 | MX-01 native-settlement repository gate | MERGED, OPERATIONAL ACCEPTANCE OPEN | PR #191 remediated the recorded review findings. All reported PR #188 checks passed, `@amirmughal22` approved exact head `893eced194661c4c6625b3b6bd52155d6d3c6856`, and PR #188 merged as `35b731f67bdbed09bf9ecac5afbd260d085d5320`. The merge commit is signature-valid; the approved head is reported unsigned. No MultX deployment or activation is inferred, and Autha O-01/package O-02 plus private production inputs remain open. |
 | 2026-09-20 | MX-01 disabled-staging Autha receipt | SCOPED ISOLATION ACCEPTED, CANDIDATE NOT ACCEPTED | Evidence package `MXDSV-20260919T092949Z` hashes to `33ae9b873b478627fe3aa3b2bfc5347d4e549ee5c31215f11940a8359661dca7`; all six package-manifest and two nested-manifest entries verify. Autha accepts the database/container isolation as scoped but leaves P-01/P-02/P-03 and O-01 open because candidate provenance is unbound, image digests conflict, labels do not enforce disablement, and the application did not run. Receipt: `MultX/docs/audit/AUTHA_PRIVATE_INFRA_STAGING_RECEIPT_2026-09-19.md`. |
 | 2026-09-21 | MX-01 staging provenance closeout | ALL STAGING FINDINGS CLOSED, O-01 OPEN | The P-01 Round 2 report closes P-01 and reconciles the OCI image identities. The later report closes P-05/P-03 and O-15/O-18, recording zero open Critical/High/Medium/Low findings against staging provenance, isolation, or evidence quality. O-14 and O-19 remain advisory; native settlement and application behavior are not accepted; O-01 and activation remain open. Receipt: `MultX/docs/audit/AUTHA_STAGING_PROVENANCE_CLOSEOUT_RECEIPT_2026-09-20.md`. |
+| 2026-09-21 | Makalu validator onboarding | MERGED, PUBLISHED SAFETY BASELINE | Signed-current-main replacement PR #200 passed all checks and merged as signature-valid `f5970f939e97dbc3ce359d95b75077d6b6a95d13`; unsigned predecessor PR #187 was closed. The guide and Docsify mirror are byte-identical at SHA-256 `78166085e63cff888761996cd3440ea14845f083888f1a3053eb6cd17dba28d5`, and the published Makalu genesis is preserved at SHA-256 `a1196fa567400adea3962ea2c0cf24c5d65d07bfca2be7cf6b4dea7cc733935a`. Live chain IDs and staking/slashing parameters matched the guide. |
 
 ## Change log
 
