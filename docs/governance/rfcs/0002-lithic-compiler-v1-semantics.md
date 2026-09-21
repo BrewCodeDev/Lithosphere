@@ -7,7 +7,7 @@
 | **Sponsor**      | Unassigned — Lithic language and LithoVM/Chain owners required |
 | **Created**      | 2026-09-21 |
 | **Last Updated** | 2026-09-21 |
-| **Discussion**   | Pending pull request |
+| **Discussion**   | [PR #202](https://github.com/KaJLabs/Lithosphere/pull/202) |
 | **Supersedes**   | (none) |
 
 ## Summary
