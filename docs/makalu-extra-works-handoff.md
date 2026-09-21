@@ -975,7 +975,9 @@ Completed or evidenced locally:
       `c942d275a38e3cd173752313b9921dd7fb801bb6` (2026-08-16).
 - [x] Drafted RFC 0002 as a fail-closed compiler-semantics decision intake, with explicit Lithic, LithoVM/Chain,
       Product, Security, and Release ownership plus L-01 through R-01 decision and conformance gates (2026-09-21).
-      The draft makes no semantic choice and does not authorize implementation, deployment, or release.
+      PR #202 passed all repository gates and merged as verified commit
+      `2072cb43f2439da91c2e21577efabd96d7abde93`. Its approval and merge preserve Draft status: the RFC makes no
+      semantic choice and does not authorize implementation, deployment, or release.
 
 Remaining actions:
 
