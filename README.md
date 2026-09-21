@@ -4,7 +4,7 @@ Developer-preview toolchain for building on Lithosphere.
 
 This repository is the source for the current GitHub release that external developers can use to start building. The public preview ships the starter CLI, the TypeScript SDK package, versioned contract artifacts, and the supporting docs needed to bootstrap projects against the Makalu network stack.
 
-Lithosphere development in this repo is Solidity-first today. There is no standalone `lithic-compiler` package or binary in this workspace yet; existing "Lithic" references are verifier and language branding around the broader Lithosphere ecosystem.
+Lithosphere development in this repo remains Solidity-first. The active standalone Lithic compiler preview is maintained in [`KaJLabs/Lithic`](https://github.com/KaJLabs/Lithic). Its merged candidate can emit executable EVM-compatible bytecode for a bounded language subset, but it is not yet a production compiler or evidence of native LithoVM deployment. Native semantics and chain integration remain governed by [RFC 0002](docs/governance/rfcs/0002-lithic-compiler-v1-semantics.md).
 
 ## What Ships In The Preview
 

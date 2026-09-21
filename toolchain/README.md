@@ -1,4 +1,10 @@
-# Lithosphere Developer Toolchain
+# Historical In-Repository Lithic Scaffold
+
+> This workspace records the original front-end scaffold and is not the active
+> compiler release source. Active compiler development and preview packaging
+> are maintained in [`KaJLabs/Lithic`](https://github.com/KaJLabs/Lithic).
+> Native LithoVM semantics and chain integration remain pending under
+> [`RFC 0002`](../docs/governance/rfcs/0002-lithic-compiler-v1-semantics.md).
 
 A Rust workspace for the Lithic smart-contract language that targets LithoVM
 bytecode (EVM-compatible). This is the **scaffold** stage: the front-end of the
