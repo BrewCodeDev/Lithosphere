@@ -128,6 +128,13 @@ Critical/High/Medium/Low findings against staging provenance, isolation, or evid
 O-19 is a forward-looking advisory, and Autha O-01 remains open. The document identities and exact boundaries are
 recorded in `MultX/docs/audit/AUTHA_STAGING_PROVENANCE_CLOSEOUT_RECEIPT_2026-09-20.md`.
 
+Autha's newer consolidated review accepts the 3-of-5 source candidate at exact commit
+`465f6868555ba528d1d9417885a791ae573bbd5a`, including G-01, G-04, and L-03 closure, while explicitly keeping O-01
+and activation open. The review package calls `multx-consolidated-review-candidate-20260912` a local tag; no matching
+tag is published on the public remote. Five of five signer hosts are separately baseline-prepared and fail-closed,
+but have no installed runtime, keys, or certificates. Exact evidence identities and remaining controls are recorded
+in `MultX/docs/audit/MULTX_O01_READINESS_STATUS_2026-09-21.md`.
+
 The worktree is shared and contains pre-existing changes across several streams. Preserve them, isolate each stream
 into a reviewable change, and never bulk-commit the dirty worktree.
 
@@ -138,7 +145,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | MX-03 | Thanos Wallet | Repository work merged and deployed; acceptance open | EXTERNAL BLOCKER | Wallet team completes the published-version browser matrix, signed transaction, and approval record. |
 | MX-04 | DNNS | Verified explorer hardening merged and deployed; owner acceptance open | EXTERNAL BLOCKER | DNNS owner confirms the supported interface, fixes public docs, nominates a reverse record, and accepts cache policy. |
 | MX-05 | Quantt | Approved `quantts.ai` boundary merged and deployed; adapter remains disabled | EXTERNAL BLOCKER | Obtain the exact API contract, credential, and product acceptance. |
-| MX-01 | MultX / Lithoswap | Accepted v0.9.2 image published; PR #188 merged; Autha staging provenance/isolation/evidence findings closed; O-01, native-settlement review, application behavior, and activation inputs remain open; MultX disabled | EXTERNAL BLOCKER | Complete O-01 operational readiness and independent native-settlement/application review before seeking separate deployment or activation approval. |
+| MX-01 | MultX / Lithoswap | Consolidated 3-of-5 source accepted; five signer hosts baseline-prepared and fail-closed; staging findings closed; O-01, custodian/governance inputs, application behavior, deployment, canary, and activation remain open; MultX disabled | EXTERNAL BLOCKER | Complete signer custody and O-01 operational readiness, then obtain separate paused-deployment, canary, and activation approvals. |
 | MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; four tools remain specification-only and there is no deployable compiler/public release | IN PROGRESS | Obtain approved language/VM semantics and product/release/security acceptance before compiler or public-release work. |
 
 ## Sequential closure queue
@@ -146,7 +153,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 Only one repository stream is active at a time. An external blocker is recorded and escalated, then work advances
 to the next executable stream without pretending the blocked stream is complete.
 
-1. [ ] **MX-01 MultX / Lithoswap** — v0.9.2 source/bytecode accepted; operational readiness, approved deployment inputs, paused deployment, canary, and activation approvals remain.
+1. [ ] **MX-01 MultX / Lithoswap** — consolidated 3-of-5 source accepted and five hosts baseline-prepared; custody, governance, operational readiness, paused deployment, canary, and activation approvals remain.
 2. [x] **MX-06 Validator cleanup and safety** — complete; the missing historical PR #17 window artifact is preserved and accepted through private PR #23 rather than reconstructed.
 3. [ ] **MX-03 Thanos Wallet** — deployed; waiting on wallet-team acceptance.
 4. [ ] **MX-04 DNNS** — deployed; waiting on DNNS-owner acceptance inputs.
@@ -300,9 +307,15 @@ Remaining actions:
 - [x] Close Autha P-05 and P-03 through the final staging-provenance report: the in-image bidirectional manifest
       verification reports 673/673 files verified with zero missing, mismatched, or unlisted files; labels are
       correctly treated as declared metadata. O-15 and O-18 are also closed.
-- [ ] Complete the remaining Autha boundaries: O-01 operational readiness, independent native-settlement review,
-      direct `/app` attestation before an enabled run (O-19), and an application-behavior rehearsal (O-14).
-- [ ] Complete Autha O-01/package O-02 operational readiness: approved seven-host inventory and network topology;
+- [x] Record Autha's acceptance of the consolidated 3-of-5 source candidate at exact commit
+      `465f6868555ba528d1d9417885a791ae573bbd5a`, closing G-01, G-04, and L-03 at source level. This is not O-01,
+      deployment, or activation acceptance; the package identifies its candidate name as a local, not public, tag.
+- [x] Baseline-prepare all five signer hosts with signing disabled, TCP/9443 blocked, no runtime or key installed,
+      and retain the sanitized evidence archive SHA-256
+      `1ad44c75ab36058a8990a72db0e75fd6c4e3778672c03659751b606b16c4778d`.
+- [ ] Complete the remaining Autha boundaries: O-01 operational readiness, direct `/app` attestation before an
+      enabled run (O-19), and an application-behavior rehearsal (O-14).
+- [ ] Complete Autha O-01/package O-02 operational readiness: approved five-host inventory and network topology;
       independent signer custodians and recovery owners; governance, deployer, fee-payer, asset, route, cap, finality,
       and independent-RPC approvals; source-pinned production image publication/provenance; host/key/PKI hardening;
       isolated database/coordinator recovery; disabled staging; per-signer recovery; monitoring, alert, and rollback

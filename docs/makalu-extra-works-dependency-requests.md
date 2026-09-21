@@ -1,7 +1,7 @@
 # Makalu extra works — current dependency requests
 
-- **Verified:** 2026-09-20
-- **Repository baseline:** `22bfafb31a9cf60a1ea70484bc208bd82994e570`
+- **Verified:** 2026-09-21
+- **Repository baseline:** `e6e5ac9fcfc83c9d03abed0f8a5e6ff8ffc05a5d`
 - **Network:** Makalu EVM chain `700777`; Cosmos chain `lithosphere_700777-2`
 
 These requests contain only the external inputs and approvals still needed. Repository work that is already merged or
@@ -22,17 +22,25 @@ reports state that no Critical, High, Medium, or Low finding remains against sta
 evidence quality. O-14 and O-19 remain advisory boundaries, and Autha O-01 remains open. MultX and Swap remain
 disabled.
 
+Autha also accepted the consolidated 3-of-5 source candidate at exact commit
+`465f6868555ba528d1d9417885a791ae573bbd5a` while explicitly keeping O-01 and activation open. Five of five signer
+hosts are now baseline-prepared and fail-closed, with no signer runtime, key, certificate, or release-signing path
+installed. The exact evidence identities and remaining-control matrix are recorded in
+`MultX/docs/audit/MULTX_O01_READINESS_STATUS_2026-09-21.md`.
+
 Required next inputs and approvals:
 
-1. Backend/Bridge owners provide the approved route inventory for Ethereum, BNB Chain, Base, and LITHO: RPC
-   providers, finality, bridge/router/pool/token addresses, code hashes, asset backing, executable amounts, limits,
-   fees, recovery behavior, and supported directions.
-2. Governance owners approve the exact five bridge signers, 3-of-5 threshold, Safe/Timelock/guardian identities,
-   deployer, fee payer, caps, liquidity owners, and activation authority. Historical 5-of-7 material is not the
-   current candidate policy.
-3. Operations preserve the closed staging-provenance/isolation evidence and privately provide the remaining signer
-   hosts/custodians, recovery owners, monitoring, rollback, and recovery-drill evidence required by Autha O-01 /
-   package O-02.
+1. Preserve an authenticated durable reference for the client-approved 2026-09-15 ETH/BNB/Base technical route
+   decision. Separately approve its finite caps and finality, then derive bridge/router/pool/token addresses, code
+   hashes, asset backing, funded liquidity, fees, and recovery behavior from the reviewed paused deployment. LITHO-
+   origin routes remain later scope, not part of this initial approval.
+2. Governance owners confirm the exact five bridge signers and 3-of-5 threshold; resolve G-02/G-03/O-12; and assign
+   the Base governance Safe, deployer, fee payer, pause guardian, liquidity/recovery owners, and activation authority.
+   Historical 5-of-7 material is not the current accepted candidate policy.
+3. Operations confirm the proposed five signer-to-host mappings and privately record each independent custodian,
+   management SSH public key, and fixed management IP/CIDR. The coordinator owner supplies its source allowlist and
+   mTLS client CA through the private repository or secret manager. Then install the exact reviewed signer image in
+   disabled mode and complete per-signer recovery, monitoring, alert, rollback, and recovery drills.
 4. Before any enabled run, directly attest the executing `/app` directory as recommended by O-19 and complete an
    application-behavior rehearsal; O-14 confirms the completed exercise tested isolation rather than application
    behavior.
