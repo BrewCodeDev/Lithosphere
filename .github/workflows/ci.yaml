@@ -237,7 +237,7 @@ jobs:
         working-directory: ./Makalu/explorer
         run: |
           if [ -f package.json ] && grep -q '"test"' package.json; then
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile --ignore-workspace
             pnpm test:coverage
           else
             echo "explorer has no test script, skipping"
@@ -315,7 +315,10 @@ jobs:
       # Runs AFTER the quarantine processor so the "Quarantined Failures"
       # subtable is included in the same sticky comment.
       - name: Post PR Comment
-        if: always() && github.event_name == 'pull_request'
+        if: >-
+          always() &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: ci-test-summary
