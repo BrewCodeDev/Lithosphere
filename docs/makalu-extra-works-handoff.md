@@ -146,7 +146,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | MX-04 | DNNS | Verified explorer hardening merged and deployed; owner acceptance open | EXTERNAL BLOCKER | DNNS owner confirms the supported interface, fixes public docs, nominates a reverse record, and accepts cache policy. |
 | MX-05 | Quantt | Approved `quantts.ai` boundary merged and deployed; adapter remains disabled | EXTERNAL BLOCKER | Obtain the exact API contract, credential, and product acceptance. |
 | MX-01 | MultX / Lithoswap | Consolidated 3-of-5 source accepted; five signer hosts baseline-prepared and fail-closed; staging findings closed; O-01, custodian/governance inputs, application behavior, deployment, canary, and activation remain open; MultX disabled | EXTERNAL BLOCKER | Complete signer custody and O-01 operational readiness, then obtain separate paused-deployment, canary, and activation approvals. |
-| MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; draft RFC 0002 now exposes the unresolved language/VM decisions and acceptance owners; four tools remain specification-only and there is no deployable compiler/public release | IN PROGRESS | Assign the five RFC 0002 authorities and resolve its L-01 through R-01 decision register before compiler or public-release work. |
+| MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; draft RFC 0002 now exposes the unresolved language/VM decisions and acceptance owners; four tools remain specification-only and there is no deployable compiler/public release | EXTERNAL BLOCKER | Respond to issue #204 with the five accountable authorities and conformance-corpus owner, then resolve RFC 0002 rows L-01 through R-01 before compiler or public-release work. |
 
 ## Sequential closure queue
 
@@ -978,6 +978,8 @@ Completed or evidenced locally:
       PR #202 passed all repository gates and merged as verified commit
       `2072cb43f2439da91c2e21577efabd96d7abde93`. Its approval and merge preserve Draft status: the RFC makes no
       semantic choice and does not authorize implementation, deployment, or release.
+- [x] Opened issue #204 with an exact response format for the Lithic, LithoVM/Chain, Product, Security, Release, and
+      conformance-corpus owner assignments required to unblock RFC 0002 (2026-09-21).
 
 Remaining actions:
 
@@ -1020,6 +1022,7 @@ Evidence:
 - `.github/workflows/release.yaml`
 - `docs/guides/deploy-lithic-on-lithovm-mainnet.md`
 - `docs/governance/rfcs/0002-lithic-compiler-v1-semantics.md`
+- `https://github.com/KaJLabs/Lithosphere/issues/204`
 
 ## Recommended execution order
 
