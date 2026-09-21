@@ -38,7 +38,7 @@ password file and start it with:
 docker compose -f MultX/infra/docker-compose.disabled-staging.yml up -d --build
 ```
 
-Run `MultX/infra/verify-disabled-staging.sh` from the exact reviewed checkout.
+Run `bash MultX/infra/verify-disabled-staging.sh` from the exact reviewed checkout.
 It verifies the disabled API responses, confirms the runtime log, and compares
 every tracked API source file directly with `/app`. Store its evidence output
 privately and return only the opaque reference for independent review.
