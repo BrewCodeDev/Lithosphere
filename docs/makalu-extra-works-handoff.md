@@ -146,7 +146,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | MX-04 | DNNS | Verified explorer hardening merged and deployed; owner acceptance open | EXTERNAL BLOCKER | DNNS owner confirms the supported interface, fixes public docs, nominates a reverse record, and accepts cache policy. |
 | MX-05 | Quantt | Approved `quantts.ai` boundary merged and deployed; adapter remains disabled | EXTERNAL BLOCKER | Obtain the exact API contract, credential, and product acceptance. |
 | MX-01 | MultX / Lithoswap | Consolidated 3-of-5 source accepted; five signer hosts baseline-prepared and fail-closed; staging findings closed; O-01, custodian/governance inputs, application behavior, deployment, canary, and activation remain open; MultX disabled | EXTERNAL BLOCKER | Complete signer custody and O-01 operational readiness, then obtain separate paused-deployment, canary, and activation approvals. |
-| MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; four tools remain specification-only and there is no deployable compiler/public release | IN PROGRESS | Obtain approved language/VM semantics and product/release/security acceptance before compiler or public-release work. |
+| MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; draft RFC 0002 now exposes the unresolved language/VM decisions and acceptance owners; four tools remain specification-only and there is no deployable compiler/public release | IN PROGRESS | Assign the five RFC 0002 authorities and resolve its L-01 through R-01 decision register before compiler or public-release work. |
 
 ## Sequential closure queue
 
@@ -973,6 +973,9 @@ Completed or evidenced locally:
       checksummed preview archives, verified every packaged command and fail-closed mode, passed both CI trigger sets
       on Linux, Windows, and macOS with all 40 Rust tests, and merged as
       `c942d275a38e3cd173752313b9921dd7fb801bb6` (2026-08-16).
+- [x] Drafted RFC 0002 as a fail-closed compiler-semantics decision intake, with explicit Lithic, LithoVM/Chain,
+      Product, Security, and Release ownership plus L-01 through R-01 decision and conformance gates (2026-09-21).
+      The draft makes no semantic choice and does not authorize implementation, deployment, or release.
 
 Remaining actions:
 
@@ -984,7 +987,7 @@ Remaining actions:
 - [x] Run the full workspace tests/release build on Linux, Windows, and macOS. PR #99 passed both workflow trigger
       sets on all three operating systems with all 20 Rust tests and full workspace release builds.
 - [ ] Specify full function-body grammar, semantics, ABI/bytecode compatibility target, and compiler conformance
-      vectors with the LithoVM/chain team.
+      vectors with the LithoVM/chain team. RFC 0002 now records the required decisions; every row remains pending.
 - [ ] Implement typed function bodies, control flow, storage operations, calls/events/reverts, lowering, deterministic
       bytecode, source maps, and actionable diagnostics.
 - [ ] Execute generated contracts in the target VM and compare state, events, calls, gas behavior, and failure cases
@@ -1014,6 +1017,7 @@ Evidence:
 - `.github/workflows/ci-toolchain.yaml`
 - `.github/workflows/release.yaml`
 - `docs/guides/deploy-lithic-on-lithovm-mainnet.md`
+- `docs/governance/rfcs/0002-lithic-compiler-v1-semantics.md`
 
 ## Recommended execution order
 
