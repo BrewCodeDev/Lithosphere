@@ -115,11 +115,18 @@ the approved head itself as unsigned; this is recorded rather than retroactively
 repository finding/remediation gate only. It does not close Autha O-01/package O-02, approve disabled staging, or
 authorize deployment, signing, liquidity, canary, or activation.
 
-The supplied Autha review of disabled-staging package `MXDSV-20260919T092949Z` accepts its database and container
-isolation as scoped evidence. It does not establish the staged candidate identity or exercise the real application:
-P-01/P-02/P-03 and O-01 remain open. The package/report hashes and exact disposition are recorded in
+The initial Autha review of disabled-staging package `MXDSV-20260919T092949Z` accepted its database and container
+isolation as scoped evidence. At that review point it did not establish the staged candidate identity or exercise
+the real application, so P-01/P-02/P-03 and O-01 remained open. The package/report hashes and exact disposition are
+recorded in
 `MultX/docs/audit/AUTHA_PRIVATE_INFRA_STAGING_RECEIPT_2026-09-19.md`. This advances isolation evidence only and
 grants no deployment or activation authority.
+
+The subsequent Round 2 and final closeout reports supersede those open staging findings. Autha closes P-01, P-05,
+and P-03, reconciles the image identities, and closes O-15 and O-18. Its final disposition records zero open
+Critical/High/Medium/Low findings against staging provenance, isolation, or evidence quality. O-14 remains carried,
+O-19 is a forward-looking advisory, and Autha O-01 remains open. The document identities and exact boundaries are
+recorded in `MultX/docs/audit/AUTHA_STAGING_PROVENANCE_CLOSEOUT_RECEIPT_2026-09-20.md`.
 
 The worktree is shared and contains pre-existing changes across several streams. Preserve them, isolate each stream
 into a reviewable change, and never bulk-commit the dirty worktree.
@@ -131,7 +138,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | MX-03 | Thanos Wallet | Repository work merged and deployed; acceptance open | EXTERNAL BLOCKER | Wallet team completes the published-version browser matrix, signed transaction, and approval record. |
 | MX-04 | DNNS | Verified explorer hardening merged and deployed; owner acceptance open | EXTERNAL BLOCKER | DNNS owner confirms the supported interface, fixes public docs, nominates a reverse record, and accepts cache policy. |
 | MX-05 | Quantt | Approved `quantts.ai` boundary merged and deployed; adapter remains disabled | EXTERNAL BLOCKER | Obtain the exact API contract, credential, and product acceptance. |
-| MX-01 | MultX / Lithoswap | Accepted v0.9.2 image is published; PR #188 merged; Autha accepted scoped staging isolation but P-01/P-02/P-03, O-01, artifact identity, application-level disabled behavior, and production inputs remain open; MultX disabled | IN PROGRESS | Bind a rebuilt disabled candidate to exact reviewed source and one image digest, run the real application fail-closed, then obtain Autha disposition. |
+| MX-01 | MultX / Lithoswap | Accepted v0.9.2 image published; PR #188 merged; Autha staging provenance/isolation/evidence findings closed; O-01, native-settlement review, application behavior, and activation inputs remain open; MultX disabled | EXTERNAL BLOCKER | Complete O-01 operational readiness and independent native-settlement/application review before seeking separate deployment or activation approval. |
 | MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; four tools remain specification-only and there is no deployable compiler/public release | IN PROGRESS | Obtain approved language/VM semantics and product/release/security acceptance before compiler or public-release work. |
 
 ## Sequential closure queue
@@ -288,9 +295,13 @@ Remaining actions:
       `35b731f67bdbed09bf9ecac5afbd260d085d5320`. This does not replace Autha operational acceptance.
 - [x] Receive, hash, and record Autha's scoped acceptance of database/container isolation in package
       `MXDSV-20260919T092949Z`. This does not establish the staged candidate identity or close O-01.
-- [ ] Close Autha P-01/P-02/P-03: bind disabled staging to an exact reviewed commit/tag and manifest, reconcile one
-      immutable image digest, run the real application under enforceable disabled configuration, repeat the
-      transaction-free rehearsal, and obtain written Autha disposition.
+- [x] Close Autha P-01 through the Round 2 report: exact reviewed tag/commit/archive/673-file manifest are bound and
+      the OCI index/platform-manifest image identities are reconciled.
+- [x] Close Autha P-05 and P-03 through the final staging-provenance report: the in-image bidirectional manifest
+      verification reports 673/673 files verified with zero missing, mismatched, or unlisted files; labels are
+      correctly treated as declared metadata. O-15 and O-18 are also closed.
+- [ ] Complete the remaining Autha boundaries: O-01 operational readiness, independent native-settlement review,
+      direct `/app` attestation before an enabled run (O-19), and an application-behavior rehearsal (O-14).
 - [ ] Complete Autha O-01/package O-02 operational readiness: approved seven-host inventory and network topology;
       independent signer custodians and recovery owners; governance, deployer, fee-payer, asset, route, cap, finality,
       and independent-RPC approvals; source-pinned production image publication/provenance; host/key/PKI hardening;
@@ -334,11 +345,11 @@ Remaining actions:
       that its unexecuted schema-v1 package did not fully bind secrets, role privileges, observed collector/run/RPC
       identities, execution metadata, or same-clone/same-event replay. Private PR #27 superseded it with fail-closed
       schema v2 and merged as `97577980c93ea31db6e36e1fa9abdbac9f33f66a`; formal independent acceptance remains
-      open. Private PR #29's independently approved collector is merged and pinned. Package
-      `MXDSV-20260919T092949Z` now evidences a dedicated database/read-only role and scoped container isolation, but
-      its candidate identity is not established and no application process ran. A reviewed image/configuration
-      identity, four-chain route/RPC/finality approvals, signer/operator independence, application-level disabled
-      behavior, and accepted transaction-free replay remain required.
+      open. Private PR #29's independently approved collector is merged and pinned. Autha's Round 2 and final
+      closeouts establish the reviewed staging source/image provenance and close all Critical/High/Medium/Low
+      staging provenance, isolation, and evidence-quality findings. Four-chain route/RPC/finality approvals,
+      signer/operator independence, application-level behavior, native-settlement acceptance, and O-01 remain
+      required.
 - [x] Modernize and explicitly disposition the MultX deployment/test toolchain's transitive audit findings. The
       deprecated Waffle/Ganache path is removed; the complete tree now reports 0 critical/9 high and the production
       tree reports zero. `MultX/docs/audit/CONTRACT_TOOLCHAIN_DISPOSITION_2026-09-10.md` prohibits the residual
@@ -1091,8 +1102,21 @@ Evidence:
 | 2026-09-20 | Quantt hostname correction | MERGED, DEPLOYED, DISABLED | The owner confirmed `quantts.ai` as the hostname boundary. PR #194 passed all checks and merged as `bd21503968e85b949bfd26c7cb7023a1815c66e0`; protected run `35519157421` passed deployment and public health gates. Live status is still safely unconfigured with null API origin, insights return HTTP 503, and the corrected developer link is present. The exact API contract, credential, and product acceptance remain open. |
 | 2026-09-20 | MX-01 native-settlement repository gate | MERGED, OPERATIONAL ACCEPTANCE OPEN | PR #191 remediated the recorded review findings. All reported PR #188 checks passed, `@amirmughal22` approved exact head `893eced194661c4c6625b3b6bd52155d6d3c6856`, and PR #188 merged as `35b731f67bdbed09bf9ecac5afbd260d085d5320`. The merge commit is signature-valid; the approved head is reported unsigned. No MultX deployment or activation is inferred, and Autha O-01/package O-02 plus private production inputs remain open. |
 | 2026-09-20 | MX-01 disabled-staging Autha receipt | SCOPED ISOLATION ACCEPTED, CANDIDATE NOT ACCEPTED | Evidence package `MXDSV-20260919T092949Z` hashes to `33ae9b873b478627fe3aa3b2bfc5347d4e549ee5c31215f11940a8359661dca7`; all six package-manifest and two nested-manifest entries verify. Autha accepts the database/container isolation as scoped but leaves P-01/P-02/P-03 and O-01 open because candidate provenance is unbound, image digests conflict, labels do not enforce disablement, and the application did not run. Receipt: `MultX/docs/audit/AUTHA_PRIVATE_INFRA_STAGING_RECEIPT_2026-09-19.md`. |
+| 2026-09-21 | MX-01 staging provenance closeout | ALL STAGING FINDINGS CLOSED, O-01 OPEN | The P-01 Round 2 report closes P-01 and reconciles the OCI image identities. The later report closes P-05/P-03 and O-15/O-18, recording zero open Critical/High/Medium/Low findings against staging provenance, isolation, or evidence quality. O-14 and O-19 remain advisory; native settlement and application behavior are not accepted; O-01 and activation remain open. Receipt: `MultX/docs/audit/AUTHA_STAGING_PROVENANCE_CLOSEOUT_RECEIPT_2026-09-20.md`. |
 
 ## Change log
+
+### 2026-09-21 — Autha staging provenance findings closed
+
+- Hashed and parsed the supplied P-01 Round 2 and P-05/P-03 closeout DOCX reports.
+- Verified the annotated `multx-native-review-2026-09-19` tag resolves to reviewed commit
+  `d77bd4214dbbbbcabe99df373a2d86ad572e7819` in the repository of record and that the commit is on public `main`.
+- Recorded Autha closure of P-01, P-05, P-03, O-15, and O-18 and the final zero-open-finding disposition for staging
+  provenance, isolation, and evidence quality.
+- Preserved O-14, O-19, native-settlement/application-review, O-01, and activation boundaries as open.
+- The referenced evidence ZIPs were not locally supplied, so this receipt does not claim independent recomputation
+  of their internal manifests; it records those results from the hashed Autha reports.
+- Updated by: `bachal-mb`.
 
 ### 2026-09-20 — Autha disabled-staging evidence recorded
 
