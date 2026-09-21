@@ -3,8 +3,8 @@
 | | |
 |-|-|
 | **Status**       | Draft — blocking decisions and owners are unassigned |
-| **Author(s)**    | @bachal-mb |
-| **Sponsor**      | Unassigned — Lithic language and LithoVM/Chain owners required |
+| **Author(s)**    | J. King Kasr (`@jkasr`) / Litho Agent (`@lithoagent`) |
+| **Sponsor**      | KaJ Labs / Litho Foundation |
 | **Created**      | 2026-09-21 |
 | **Last Updated** | 2026-09-21 |
 | **Discussion**   | [PR #202](https://github.com/KaJLabs/Lithosphere/pull/202) |
@@ -67,11 +67,11 @@ request approval or merge of this draft is not acceptance of any pending row.
 
 | Authority | Required approval scope | Assigned owner | State |
 |---|---|---|---|
-| Lithic language owner | Grammar, name resolution, type system, and source semantics | Pending | Pending |
-| LithoVM/Chain owner | VM revision, execution, storage, gas, ABI, precompiles, and failure semantics | Pending | Pending |
-| Product owner | Supported v1 surface and compatibility promise | Pending | Pending |
-| Security reviewer | Threat model, resource bounds, unsafe capabilities, and negative corpus | Pending | Pending |
-| Release owner | Platforms, provenance, signing, installation, rollback, and support policy | Pending | Pending |
+| Lithic language owner | Grammar, name resolution, type system, and source semantics | KaJ Labs / Litho Foundation rotation (`@jkasr`, `@lithoagent`) | Assigned; decisions pending |
+| LithoVM/Chain owner | VM revision, execution, storage, gas, ABI, precompiles, and failure semantics | KaJ Labs / Litho Foundation rotation (`@jkasr`, `@lithoagent`) | Assigned; decisions pending |
+| Product owner | Supported v1 surface and compatibility promise | KaJ Labs / Litho Foundation rotation (`@jkasr`, `@lithoagent`) | Assigned; decisions pending |
+| Security reviewer | Threat model, resource bounds, unsafe capabilities, and negative corpus | KaJ Labs / Litho Foundation rotation (`@jkasr`, `@lithoagent`) | Assigned; decisions pending |
+| Release owner | Platforms, provenance, signing, installation, rollback, and support policy | KaJ Labs / Litho Foundation rotation (`@jkasr`, `@lithoagent`) | Assigned; decisions pending |
 
 ## Detailed Design
 
@@ -217,9 +217,9 @@ requires a separate approval and rollback plan after the compiler is accepted.
 
 ## Unresolved Questions
 
-- [ ] Who is the accountable Lithic language owner?
-- [ ] Who is the accountable LithoVM/Chain semantics owner?
-- [ ] Who owns Product, Security, and Release acceptance?
+- [x] Who is the accountable Lithic language owner? KaJ Labs / Litho Foundation rotation: `@jkasr`, `@lithoagent`.
+- [x] Who is the accountable LithoVM/Chain semantics owner? KaJ Labs / Litho Foundation rotation: `@jkasr`, `@lithoagent`.
+- [x] Who owns Product, Security, and Release acceptance? KaJ Labs / Litho Foundation rotation: `@jkasr`, `@lithoagent`.
 - [ ] What are the approved answers and normative text for L-01 through R-01?
 - [ ] What repository and change-control process own the conformance corpus?
 - [ ] What exact compiler and target versioning rule handles future breaking
