@@ -146,7 +146,7 @@ into a reviewable change, and never bulk-commit the dirty worktree.
 | MX-04 | DNNS | Verified explorer hardening merged and deployed; owner acceptance open | EXTERNAL BLOCKER | DNNS owner confirms the supported interface, fixes public docs, nominates a reverse record, and accepts cache policy. |
 | MX-05 | Quantt | Approved `quantts.ai` boundary merged and deployed; adapter remains disabled | EXTERNAL BLOCKER | Obtain the exact API contract, credential, and product acceptance. |
 | MX-01 | MultX / Lithoswap | Consolidated 3-of-5 source accepted; five signer hosts baseline-prepared and fail-closed; staging findings closed; O-01, custodian/governance inputs, application behavior, deployment, canary, and activation remain open; MultX disabled | EXTERNAL BLOCKER | Complete signer custody and O-01 operational readiness, then obtain separate paused-deployment, canary, and activation approvals. |
-| MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; draft RFC 0002 now exposes the unresolved language/VM decisions and acceptance owners; four tools remain specification-only and there is no deployable compiler/public release | EXTERNAL BLOCKER | Respond to issue #204 with the five accountable authorities and conformance-corpus owner, then resolve RFC 0002 rows L-01 through R-01 before compiler or public-release work. |
+| MX-07 | Developer toolchain | All eight tool boundaries plus locked, checksummed three-OS preview packaging reviewed; KaJ Labs / Litho Foundation assigned the `@jkasr` / `@lithoagent` rotation to all RFC 0002 authorities; four tools remain specification-only and there is no deployable compiler/public release | EXTERNAL BLOCKER | The assigned rotation must resolve RFC 0002 rows L-01 through R-01 and the conformance-corpus change process before compiler or public-release work. |
 
 ## Sequential closure queue
 
@@ -980,6 +980,9 @@ Completed or evidenced locally:
       semantic choice and does not authorize implementation, deployment, or release.
 - [x] Opened issue #204 with an exact response format for the Lithic, LithoVM/Chain, Product, Security, Release, and
       conformance-corpus owner assignments required to unblock RFC 0002 (2026-09-21).
+- [x] KaJ Labs / Litho Foundation assigned J. King Kasr (`@jkasr`) and Litho Agent (`@lithoagent`) as the formal
+      rotation for all RFC 0002 authorities and the `KaJLabs/Lithosphere` conformance corpus (2026-09-22). Evidence:
+      issue #204 comment `5766911463`. This closes owner assignment only; all semantic decisions remain pending.
 
 Remaining actions:
 
