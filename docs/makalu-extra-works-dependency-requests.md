@@ -1,7 +1,7 @@
 # Makalu extra works — current dependency requests
 
 - **Verified:** 2026-09-20
-- **Repository baseline:** `af7c7f100a10cd249ab642b282973ee57c1b2228`
+- **Repository baseline:** `22bfafb31a9cf60a1ea70484bc208bd82994e570`
 - **Network:** Makalu EVM chain `700777`; Cosmos chain `lithosphere_700777-2`
 
 These requests contain only the external inputs and approvals still needed. Repository work that is already merged or
@@ -17,9 +17,10 @@ exact head `893eced194661c4c6625b3b6bd52155d6d3c6856`, and the PR merged as
 `35b731f67bdbed09bf9ecac5afbd260d085d5320`. This repository approval does not replace Autha O-01/package O-02
 operational acceptance and does not authorize deployment or activation.
 
-Autha separately accepted package `MXDSV-20260919T092949Z` as scoped database/container isolation evidence. It did
-not accept the staged candidate identity: P-01/P-02/P-03 and O-01 remain open because the artifact is not bound to a
-reviewed commit/tag/manifest, two image digests are unreconciled, and the real application entrypoint did not run.
+Autha subsequently closed P-01 in Round 2, then closed P-05 and P-03 in the final staging-provenance closeout. The
+reports state that no Critical, High, Medium, or Low finding remains against staging provenance, isolation, or
+evidence quality. O-14 and O-19 remain advisory boundaries, and Autha O-01 remains open. MultX and Swap remain
+disabled.
 
 Required next inputs and approvals:
 
@@ -29,15 +30,15 @@ Required next inputs and approvals:
 2. Governance owners approve the exact five bridge signers, 3-of-5 threshold, Safe/Timelock/guardian identities,
    deployer, fee payer, caps, liquidity owners, and activation authority. Historical 5-of-7 material is not the
    current candidate policy.
-3. Operations preserve the accepted scoped database/container isolation and privately provide the remaining signer
+3. Operations preserve the closed staging-provenance/isolation evidence and privately provide the remaining signer
    hosts/custodians, recovery owners, monitoring, rollback, and recovery-drill evidence required by Autha O-01 /
    package O-02.
-4. Rebuild disabled staging from an exact reviewed commit/tag with a per-file manifest, one reconciled immutable
-   image digest, and enforceable disabled configuration while the real application entrypoint runs.
-5. Independent security/operator reviewers accept that exact candidate and repeated transaction-free rehearsal;
-   record the source commit, image/configuration digests, reviewer identity, run IDs, and scope.
-6. After independent review, authorize the next controlled **disabled** staging verification.
-   Deployment, liquidity, signing, canary, and activation require separate approvals.
+4. Before any enabled run, directly attest the executing `/app` directory as recommended by O-19 and complete an
+   application-behavior rehearsal; O-14 confirms the completed exercise tested isolation rather than application
+   behavior.
+5. Obtain independent acceptance of the unaudited native settlement layer and the remaining O-01 operational
+   controls, then record reviewer identity, exact source/image/configuration digests, run IDs, and scope.
+6. Require separate approvals for deployment, liquidity, signing, canary, and activation.
 
 Acceptance evidence must identify the exact source commit, image digest, configuration digest, reviewer, run IDs,
 and rollback result. No earlier or unreviewed MultX candidate may be relabeled as accepted.
